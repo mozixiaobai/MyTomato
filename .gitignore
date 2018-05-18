@@ -1,0 +1,14 @@
+##ignore this file##
+/res/
+/Release/
+*.tlog
+*.log
+*.manifest
+*.lastbuildstate
+*.pch
+*.pdb
+*.res
+*.cache
+*.png
+*.rc2
+*.ico

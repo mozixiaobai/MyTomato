@@ -1252,7 +1252,9 @@ void CUDSONE::OnBnClickedBtnDefault()
 	//1、原消息，用于调出参数属性windows对话框
 //	::SendMessage(m_hParentWnd, WM_SCANSET, 14, 0);
 	
+	
 	//2、新消息，用于重新加载当前模板
+	/*
 	int       tem_nCurSel   = 0;
 
 	CString   tem_strCurSel = _T("");
@@ -1265,7 +1267,20 @@ void CUDSONE::OnBnClickedBtnDefault()
 	
 	::SendMessage(m_hParentWnd, WM_SCANSET, 27, tem_nCurSel);
 	Self_SetSlider(tem_strTemPath);
-	
+	*/
+	//3、仅有两个模板，0-透射稿，1-反射稿
+	int tem_nCurSel = 0;
+	if (BST_CHECKED==IsDlgButtonChecked(IDC_CHK_ATRANTEM))
+	{
+		tem_nCurSel = 0;
+		Self_SetSlider(g_strProXmlPath);
+	} 
+	else
+	{
+		tem_nCurSel = 1;
+		Self_SetSlider(g_strDocXmlPath);
+	}
+	::SendMessage(m_hParentWnd, WM_SCANSET, 27, tem_nCurSel);	
 }
 
 
@@ -1356,17 +1371,17 @@ void CUDSONE::Self_UpdateSlider(int index)
 		break;
 	case 7:
 		//联动，取消反射稿勾选框
-		GetDlgItem(IDC_RADIO_AUTO)->EnableWindow(FALSE);
-		((CButton*)GetDlgItem(IDC_CHK_DOCUMENT))->SetCheck(FALSE);
-		((CButton*)GetDlgItem(IDC_CHK_TRANS))->SetCheck(TRUE);
-		if (m_nViewMode == 3)
+//		GetDlgItem(IDC_RADIO_AUTO)->EnableWindow(FALSE);
+// 		((CButton*)GetDlgItem(IDC_CHK_DOCUMENT))->SetCheck(FALSE);
+// 		((CButton*)GetDlgItem(IDC_CHK_TRANS))->SetCheck(TRUE);
+//		if (m_nViewMode == 3)
 		{
 			((CButton*)GetDlgItem(IDC_RADIO_FREERECT))->SetCheck(FALSE);
 //			((CButton*)GetDlgItem(IDC_RADIO_MAXRECT))->SetCheck(FALSE);
 			((CButton*)GetDlgItem(IDC_RADIO_AUTO))->SetCheck(FALSE);
 		}
-		m_btnHDR.SetFourState();
-		m_btnHDR.EnableWindow(TRUE);
+// 		m_btnHDR.SetFourState();
+// 		m_btnHDR.EnableWindow(TRUE);
 		break;
 	case 8:
 		m_btnHDR.EnableWindow(FALSE);
@@ -1606,10 +1621,10 @@ void CUDSONE::OnBnClickedBtnScan2()
 void CUDSONE::Self_SetCtrlState(void)
 {
 	((CButton*)GetDlgItem(IDC_RADIO_FREERECT))->SetCheck(FALSE);
-//	((CButton*)GetDlgItem(IDC_RADIO_MAXRECT))->SetCheck(FALSE);
-	((CButton*)GetDlgItem(IDC_RADIO_PARTVIEW))->SetCheck(TRUE);
+	((CButton*)GetDlgItem(IDC_RADIO_AUTO))->SetCheck(FALSE);
+//	((CButton*)GetDlgItem(IDC_RADIO_PARTVIEW))->SetCheck(TRUE);
 
-	GetDlgItem(IDC_BTN_REDUCE)->EnableWindow(FALSE);
+//	GetDlgItem(IDC_BTN_REDUCE)->EnableWindow(FALSE);
 }
 
 

@@ -1381,15 +1381,15 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 			}
 			Self_ReadXml(tem_strSlcTem);
 			m_dlgOne.Self_ResetUI(tem_strSlcTem);
-			m_dlgTwo.Self_ReadXml(tem_strSlcTem);
+//			m_dlgTwo.Self_ReadXml(tem_strSlcTem);
 			m_nLastTemplate = tem_nInfo;
 
 		}
 		break;
 	case 1:
 		//联动------------------------
-		m_dlgTwo.m_nLastRes = tem_nInfo;
-		m_dlgTwo.Self_UpdateSlider(4);
+//		m_dlgTwo.m_nLastRes = tem_nInfo;
+//		m_dlgTwo.Self_UpdateSlider(4);
 		//功能实现--------------------
 		switch(tem_nInfo)
 		{
@@ -1434,8 +1434,8 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 	case 2:
 		if (tem_nInfo!=m_nLastImgType)
 		{
-			m_dlgTwo.m_nLastImgType = tem_nInfo;
-			m_dlgTwo.Self_UpdateSlider(5);
+// 			m_dlgTwo.m_nLastImgType = tem_nInfo;
+// 			m_dlgTwo.Self_UpdateSlider(5);
 			m_nLastImgType = tem_nInfo;
 			switch(m_nLastImgType)
 			{
@@ -1515,8 +1515,8 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		{
 			m_conVideoCtrl.SetBrightness(tem_nInfo, 0);
 			m_nLastBright = tem_nInfo;
-			m_dlgTwo.m_nLastBright = tem_nInfo;
-			m_dlgTwo.Self_UpdateSlider(0);
+// 			m_dlgTwo.m_nLastBright = tem_nInfo;
+// 			m_dlgTwo.Self_UpdateSlider(0);
 		}
 		break;
 	case 7:
@@ -1537,8 +1537,8 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		{
 			m_conVideoCtrl.SetContrast(tem_nInfo, 0);
 			m_nLastContrst = tem_nInfo;
-			m_dlgTwo.m_nLastContrast = tem_nInfo;
-			m_dlgTwo.Self_UpdateSlider(1);
+// 			m_dlgTwo.m_nLastContrast = tem_nInfo;
+// 			m_dlgTwo.Self_UpdateSlider(1);
 		}
 		break;
 	case 9:
@@ -1638,8 +1638,8 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		if (tem_nInfo!=m_nLastRelay)
 		{
 			Self_SetRelayValue(tem_nInfo);
-			m_dlgTwo.m_nLastLightBox = tem_nInfo;
-			m_dlgTwo.Self_UpdateSlider(2);
+// 			m_dlgTwo.m_nLastLightBox = tem_nInfo;
+// 			m_dlgTwo.Self_UpdateSlider(2);
 		}
 		break;
 	//case 19,case 20灯箱两端校准机制，当灯箱亮度为0或100，自动校准；缺点，亮度停留在0或100，灯箱一直校准，造成软件卡顿
@@ -1652,8 +1652,8 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		if (tem_nInfo!=m_nLastRelay)
 		{
 			Self_SetRelayValue(tem_nInfo);
-			m_dlgTwo.m_nLastLightBox = tem_nInfo;
-			m_dlgTwo.Self_UpdateSlider(2);
+// 			m_dlgTwo.m_nLastLightBox = tem_nInfo;
+// 			m_dlgTwo.Self_UpdateSlider(2);
 		}
 		break;
 	case 20:
@@ -1665,8 +1665,8 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		if (tem_nInfo!=m_nLastRelay)
 		{
 			Self_SetRelayValue(tem_nInfo);
-			m_dlgTwo.m_nLastLightBox = tem_nInfo;
-			m_dlgTwo.Self_UpdateSlider(2);
+// 			m_dlgTwo.m_nLastLightBox = tem_nInfo;
+// 			m_dlgTwo.Self_UpdateSlider(2);
 		}
 		break;
 	case 21:
@@ -1690,7 +1690,7 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		m_conVideoCtrl.AdjuestImageCrop(FALSE);
 
 		m_dlgOne.Self_UpdateSlider(7);
-		m_dlgTwo.Self_UpdateSlider(7);
+//		m_dlgTwo.Self_UpdateSlider(7);
 		break;
 	case 24:
 		//灰阶
@@ -1701,8 +1701,8 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 
 			m_nLastGray = tem_nInfo;
 
-			m_dlgTwo.m_nLastGray = tem_nInfo;
-			m_dlgTwo.Self_UpdateSlider(3);
+//			m_dlgTwo.m_nLastGray = tem_nInfo;
+//			m_dlgTwo.Self_UpdateSlider(3);
 		}
 		break;
 	case 25:
@@ -1722,12 +1722,26 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 //		m_dlgTwo.Self_UpdateSlider(6);
 		break;
 	case 27:
+		/*0515
 			tem_strSlcTem = m_vcTemPath[tem_nInfo];
 			Self_ReadXml(tem_strSlcTem);
 			m_dlgOne.Self_ResetUI(tem_strSlcTem);
-			m_dlgTwo.Self_ReadXml(tem_strSlcTem);
+// 			m_dlgTwo.Self_ReadXml(tem_strSlcTem);
 			m_nLastTemplate = tem_nInfo;
-	
+			*/
+		if (tem_nInfo==0)
+		{
+			//重新加载透射稿模板
+			Self_ReadXml(g_strProXmlPath);
+			m_dlgOne.Self_ResetUI(g_strProXmlPath);
+		}
+		else
+		{
+			//重新加载反射稿模板
+			Self_ReadXml(g_strDocXmlPath);
+			m_dlgOne.Self_ResetUI(g_strDocXmlPath);
+		}	
+		m_nLastTemplate = tem_nInfo;
 		break;
 	case 28:
 		if (tem_nInfo==0)
@@ -1741,7 +1755,7 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 					
 					Self_ReadXml(tem_strSlcTem);
 					m_dlgOne.Self_ResetUI(tem_strSlcTem);
-					m_dlgTwo.Self_ReadXml(tem_strSlcTem);
+// 					m_dlgTwo.Self_ReadXml(tem_strSlcTem);
 					m_dlgOne.Self_SetSlider(tem_strSlcTem);
 					m_nLastTemplate = tem_nItem;
 					break;
@@ -1759,7 +1773,7 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 					m_BHDR = FALSE;
 					Self_ReadXml(tem_strSlcTem);
 					m_dlgOne.Self_ResetUI(tem_strSlcTem);
-					m_dlgTwo.Self_ReadXml(tem_strSlcTem);
+// 					m_dlgTwo.Self_ReadXml(tem_strSlcTem);
 					m_dlgOne.Self_SetSlider(tem_strSlcTem);
 					m_nLastTemplate = tem_nItem;
 					break;
@@ -2109,7 +2123,7 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnTemplate(WPARAM wParam, LPARAM lParam)
 	case 21:
 		//调用TWO类实现模板保存
 		tem_strInfo = (CString*)lParam;
-		m_dlgTwo.Self_CreateXml(*tem_strInfo);
+// 		m_dlgTwo.Self_CreateXml(*tem_strInfo);
 //		MessageBox(*tem_strInfo);
 
 		break;
@@ -4035,7 +4049,7 @@ void CXRayViewerv10Dlg::Self_EnsureItems(void)
 		tem_stcCamera.m_strName = tem_strName;
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
-		tem_stcCamera.m_lCurValue = 70;
+		tem_stcCamera.m_lCurValue = 100;
 		tem_stcCamera.m_lMaxValue = 100;
 		tem_stcCamera.m_lMinValue = 0;
 
@@ -4074,7 +4088,7 @@ void CXRayViewerv10Dlg::Self_EnsureItems(void)
 		tem_stcCamera.m_strName = tem_strName;
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
-		tem_stcCamera.m_lCurValue = 1;
+		tem_stcCamera.m_lCurValue = 0;
 		tem_stcCamera.m_lMaxValue = 1;
 		tem_stcCamera.m_lMinValue = 0;
 
@@ -5623,7 +5637,7 @@ void CXRayViewerv10Dlg::Self_EnsureItems2(void)
 		tem_stcCamera.m_strName = tem_strName;
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
-		tem_stcCamera.m_lCurValue = 70;
+		tem_stcCamera.m_lCurValue = 100;
 		tem_stcCamera.m_lMaxValue = 100;
 		tem_stcCamera.m_lMinValue = 0;
 
@@ -5662,7 +5676,7 @@ void CXRayViewerv10Dlg::Self_EnsureItems2(void)
 		tem_stcCamera.m_strName = tem_strName;
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
-		tem_stcCamera.m_lCurValue = 1;
+		tem_stcCamera.m_lCurValue = 0;
 		tem_stcCamera.m_lMaxValue = 1;
 		tem_stcCamera.m_lMinValue = 0;
 
