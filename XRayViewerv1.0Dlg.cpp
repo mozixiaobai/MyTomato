@@ -19,6 +19,15 @@ std::vector<int>     g_vcSlid;
 int g_nGrayValue[18][2]={{169,42}, {100,32}, {106,33}, {112,34}, {119,35}, {125,36}, {131,37}, {137,38}, {144,39}, {150,40},{156,41}, {162,42}, {169,43}, {175,44}, {181,45}, {187,46}, {194,47}, {200,48}};
 CString  g_strEditInfo;
 
+
+//加载调焦dll
+typedef long(*pcamInitCameraLib)(); pcamInitCameraLib  camInitCameraLib;           //初始化
+typedef long(*pcamGetDevCount)(long&); pcamGetDevCount camGetDevCount;             //摄像头个数
+typedef long(*pcamGetDevPid)(long, char*); pcamGetDevPid camGetDevPid;             //PID
+typedef long(*pcamGetDevVid)(long, char*); pcamGetDevVid camGetDevVid;             //VID
+typedef char*(*pcamGetDevName)(long); pcamGetDevName   camGetDevName;              //获取设备名称
+typedef long(*pcamSetFocusValue)(long, long); pcamSetFocusValue camSetFocusValue;  //设置焦点值
+
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialogEx
@@ -576,6 +585,38 @@ BOOL CXRayViewerv10Dlg::OnInitDialog()
 	m_tipInfo.SetTipBkColor(RGB(0, 0, 0));
 	m_tipInfo.Activate(TRUE);
 
+	/*13、设置摄像头焦点*/
+	//a、变量初始化--------------------------
+	m_hDllInst = LoadLibrary(_T("CmCapture.dll"));
+	if (m_hDllInst)
+	{
+		//1、加载dll函数---------------------------------------------------------------------
+		camInitCameraLib = (pcamInitCameraLib)GetProcAddress(m_hDllInst, "camInitCameraLib");
+		camGetDevPid = (pcamGetDevPid)GetProcAddress(m_hDllInst, "camGetDevPid");
+		camGetDevVid = (pcamGetDevVid)GetProcAddress(m_hDllInst, "camGetDevVid");
+		camGetDevCount = (pcamGetDevCount)GetProcAddress(m_hDllInst, "camGetDevCount");
+		camGetDevName = (pcamGetDevName)GetProcAddress(m_hDllInst, "camGetDevName");
+		camSetFocusValue = (pcamSetFocusValue)GetProcAddress(m_hDllInst, "camSetFocusValue");
+
+		//2、获取当前设备索引-----------------------------------------------------------------
+		int tem_nRC = -1;
+		tem_nRC = camInitCameraLib();
+		for (int i=0; i<tem_nDevNum; i++)
+		{
+			char* tem_cCamName = camGetDevName(i);
+			CString tem_strCamName(tem_cCamName);
+			if (tem_strCamName.Find(_T("Document Scanner")) != -1)
+			{
+				m_nDevIndex = i;
+				break;
+			}
+		}
+
+		
+		tem_nRC = camSetFocusValue(m_nDevIndex, m_nFocusValue);
+	}
+	
+
 	
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -789,6 +830,15 @@ BOOL CXRayViewerv10Dlg::PreTranslateMessage(MSG* pMsg)
 				m_conVideoCtrl.SetMessage(1);
 			}
 			break;
+		case VK_F1:
+			if (m_BCtrl)
+			{
+				//手动裁切
+				m_BCtrl = FALSE;
+				m_conVideoCtrl.ManualImageCrop(TRUE);
+				m_conVideoCtrl.SetMessage(1);
+			}
+			break;
 		}
 	}
 	else if (pMsg->message == WM_KEYUP)
@@ -808,6 +858,11 @@ BOOL CXRayViewerv10Dlg::PreTranslateMessage(MSG* pMsg)
 		case 0x5A:
 			m_BCtrl = TRUE;
 			::SendMessage(this->m_hWnd, WM_SCANSET, 16, 0);
+			break;
+		case VK_F1:
+			m_BCtrl = TRUE;
+			::SendMessage(this->m_hWnd, WM_SCANSET, 16, 0);
+			break;
 			break;
 		}
 	}
@@ -1080,6 +1135,7 @@ void CXRayViewerv10Dlg::OnClose()
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 	m_conVideoCtrl.StopRun();
 	m_conVideoCtrl.Uninitial();
+	FreeLibrary(m_hDllInst);
 
 	//	Self_SetRelayZero();
 
@@ -1087,7 +1143,7 @@ void CXRayViewerv10Dlg::OnClose()
 //	Self_SetRelayValue(1);
 
 	//方案二：先置0，再调一，不会出错，但要关一次
-		Self_SetRelay1();
+	Self_SetRelay1();
 
 	if (m_vcThumbPath.size()==0)
 	{
@@ -1314,6 +1370,11 @@ void CXRayViewerv10Dlg::Self_ReadIni(CString inipath)
 	::GetPrivateProfileString(_T("BaseSet"), _T("VidoeMode"), _T("没有找到VidoeMode信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
 	tem_nRead     = _ttoi(tem_strRead);
 	m_nVidoeMode= tem_nRead;
+	tem_strRead.ReleaseBuffer();	
+
+	::GetPrivateProfileString(_T("BaseSet"), _T("FocusValue"), _T("没有找到FocusValue信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
+	tem_nRead     = _ttoi(tem_strRead);
+	m_nFocusValue= tem_nRead;
 	tem_strRead.ReleaseBuffer();	
 }
 
@@ -1792,9 +1853,22 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case 30:
-		tem_strImgName  = Self_NamingFile(m_nImageCount);
-		Self_CaptureImgHDR(tem_strImgName);
-		m_nPrcsIndex = -1;
+		if (tem_nInfo==1)
+		{
+			//高密度拍摄
+			tem_strImgName  = Self_NamingFile(m_nImageCount);
+			Self_CaptureImgHDR(tem_strImgName, 1);
+			m_nPrcsIndex = -1;
+		} 
+		else
+		{
+			//低密度拍摄
+			tem_strImgName  = Self_NamingFile(m_nImageCount);
+			Self_CaptureImgHDR(tem_strImgName, 0);
+			m_nPrcsIndex = -1;
+
+		}
+		
 		break;
 	case 31:
 		if (tem_nInfo==0)
@@ -1813,7 +1887,11 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case 32:
-
+		if (tem_nInfo!=m_nFocusValue)
+		{
+			camSetFocusValue(m_nDevIndex, tem_nInfo);
+			m_nFocusValue = tem_nInfo;
+		}
 		break;
 	default:
 		break;
@@ -3988,47 +4066,47 @@ void CXRayViewerv10Dlg::Self_EnsureItems(void)
 		tem_vcCamera.push_back(tem_stcCamera);
 	}
 
-	//HDR小模板-----------------------------------
-	//灯箱1
+	//LDR——低密度拍摄，小模板-----------------------------------
+	//灯箱
 	tem_strName = _T("LQUABGT");
 	{
 		tem_lMark = 1;
 		tem_stcCamera.m_strName = tem_strName;
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
-		tem_stcCamera.m_lCurValue = 1;
-		tem_stcCamera.m_lMaxValue = 100;
-		tem_stcCamera.m_lMinValue = 0;
+		tem_stcCamera.m_lCurValue = 10;      //中间亮度——Cur
+		tem_stcCamera.m_lMaxValue = 40;     //最大亮度——Max
+		tem_stcCamera.m_lMinValue = 1;       //最小亮度——Min
 
 		tem_vcCamera.push_back(tem_stcCamera);
 	}
-	//灰阶调节1
+	//灰阶调节
 	tem_strName = _T("LQUAGRY");
 	{
 		tem_lMark = 1;
 		tem_stcCamera.m_strName = tem_strName;
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
-		tem_stcCamera.m_lCurValue = 9;
-		tem_stcCamera.m_lMaxValue = 17;
-		tem_stcCamera.m_lMinValue = 1;
+		tem_stcCamera.m_lCurValue = 11;      //Cur
+		tem_stcCamera.m_lMaxValue = 11;      //Max
+		tem_stcCamera.m_lMinValue = 11;      //Min
 
 		tem_vcCamera.push_back(tem_stcCamera);
 	}
-	//延时1
+	//延时
 	tem_strName = _T("LQUADLY");
 	{
 		tem_lMark = 1;
 		tem_stcCamera.m_strName = tem_strName;
 		tem_stcCamera.m_lSuport = tem_lMark;
-		tem_stcCamera.m_lAuto = 0;
-		tem_stcCamera.m_lCurValue = 30;
-		tem_stcCamera.m_lMaxValue = 100;
-		tem_stcCamera.m_lMinValue = 10;
+		tem_stcCamera.m_lAuto = 0;          
+		tem_stcCamera.m_lCurValue = 30;       //Cur
+		tem_stcCamera.m_lMaxValue = 30;       //Max
+		tem_stcCamera.m_lMinValue = 30;       //Min
 
 		tem_vcCamera.push_back(tem_stcCamera);
 	}
-	//逆光对比1
+	//逆光对比
 	tem_strName = _T("LQUABCK");
 	{
 		tem_lMark = 1;
@@ -4036,39 +4114,39 @@ void CXRayViewerv10Dlg::Self_EnsureItems(void)
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
 		tem_stcCamera.m_lCurValue = 0;
-		tem_stcCamera.m_lMaxValue = 1;
+		tem_stcCamera.m_lMaxValue = 0;
 		tem_stcCamera.m_lMinValue = 0;
 
 		tem_vcCamera.push_back(tem_stcCamera);
 	}
-
-	//灯箱2
+	//HDR——高密度拍摄，小模板-----------------------------------
+	//灯箱
 	tem_strName = _T("HQUABGT");
 	{
 		tem_lMark = 1;
 		tem_stcCamera.m_strName = tem_strName;
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
-		tem_stcCamera.m_lCurValue = 100;
+		tem_stcCamera.m_lCurValue = 10;
 		tem_stcCamera.m_lMaxValue = 100;
-		tem_stcCamera.m_lMinValue = 0;
+		tem_stcCamera.m_lMinValue = 1;
 
 		tem_vcCamera.push_back(tem_stcCamera);
 	}
-	//灰阶调节2
+	//灰阶调节
 	tem_strName = _T("HQUAGRY");
 	{
 		tem_lMark = 1;
 		tem_stcCamera.m_strName = tem_strName;
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
-		tem_stcCamera.m_lCurValue = 13;
-		tem_stcCamera.m_lMaxValue = 17;
-		tem_stcCamera.m_lMinValue = 1;
+		tem_stcCamera.m_lCurValue = 11;
+		tem_stcCamera.m_lMaxValue = 11;
+		tem_stcCamera.m_lMinValue = 11;
 
 		tem_vcCamera.push_back(tem_stcCamera);
 	}
-	//延时2
+	//延时
 	tem_strName = _T("HQUADLY");
 	{
 		tem_lMark = 1;
@@ -4076,12 +4154,12 @@ void CXRayViewerv10Dlg::Self_EnsureItems(void)
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
 		tem_stcCamera.m_lCurValue = 30;
-		tem_stcCamera.m_lMaxValue = 100;
-		tem_stcCamera.m_lMinValue = 10;
+		tem_stcCamera.m_lMaxValue = 30;
+		tem_stcCamera.m_lMinValue = 30;
 
 		tem_vcCamera.push_back(tem_stcCamera);
 	}
-	//逆光对比2
+	//逆光对比
 	tem_strName = _T("HQUABCK");
 	{
 		tem_lMark = 1;
@@ -4089,7 +4167,7 @@ void CXRayViewerv10Dlg::Self_EnsureItems(void)
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
 		tem_stcCamera.m_lCurValue = 0;
-		tem_stcCamera.m_lMaxValue = 1;
+		tem_stcCamera.m_lMaxValue = 0;
 		tem_stcCamera.m_lMinValue = 0;
 
 		tem_vcCamera.push_back(tem_stcCamera);
@@ -5576,30 +5654,30 @@ void CXRayViewerv10Dlg::Self_EnsureItems2(void)
 		tem_vcCamera.push_back(tem_stcCamera);
 	}
 
-	//HDR小模板-----------------------------------
-	//灯箱1
+	//LDR小模板_低密度-----------------------------------
+	//灯箱
 	tem_strName = _T("LQUABGT");
 	{
 		tem_lMark = 1;
 		tem_stcCamera.m_strName = tem_strName;
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
-		tem_stcCamera.m_lCurValue = 1;
-		tem_stcCamera.m_lMaxValue = 100;
-		tem_stcCamera.m_lMinValue = 0;
+		tem_stcCamera.m_lCurValue = 10;
+		tem_stcCamera.m_lMaxValue = 40;
+		tem_stcCamera.m_lMinValue = 1;
 
 		tem_vcCamera.push_back(tem_stcCamera);
 	}
-	//灰阶调节1
+	//灰阶调节
 	tem_strName = _T("LQUAGRY");
 	{
 		tem_lMark = 1;
 		tem_stcCamera.m_strName = tem_strName;
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
-		tem_stcCamera.m_lCurValue = 9;
-		tem_stcCamera.m_lMaxValue = 17;
-		tem_stcCamera.m_lMinValue = 1;
+		tem_stcCamera.m_lCurValue = 11;
+		tem_stcCamera.m_lMaxValue = 11;
+		tem_stcCamera.m_lMinValue = 11;
 
 		tem_vcCamera.push_back(tem_stcCamera);
 	}
@@ -5611,8 +5689,8 @@ void CXRayViewerv10Dlg::Self_EnsureItems2(void)
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
 		tem_stcCamera.m_lCurValue = 30;
-		tem_stcCamera.m_lMaxValue = 100;
-		tem_stcCamera.m_lMinValue = 10;
+		tem_stcCamera.m_lMaxValue = 30;
+		tem_stcCamera.m_lMinValue = 30;
 
 		tem_vcCamera.push_back(tem_stcCamera);
 	}
@@ -5624,22 +5702,22 @@ void CXRayViewerv10Dlg::Self_EnsureItems2(void)
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
 		tem_stcCamera.m_lCurValue = 0;
-		tem_stcCamera.m_lMaxValue = 1;
+		tem_stcCamera.m_lMaxValue = 0;
 		tem_stcCamera.m_lMinValue = 0;
 
 		tem_vcCamera.push_back(tem_stcCamera);
 	}
 
-	//灯箱2
+	//HDR_高密度拍摄
 	tem_strName = _T("HQUABGT");
 	{
 		tem_lMark = 1;
 		tem_stcCamera.m_strName = tem_strName;
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
-		tem_stcCamera.m_lCurValue = 100;
+		tem_stcCamera.m_lCurValue = 10;
 		tem_stcCamera.m_lMaxValue = 100;
-		tem_stcCamera.m_lMinValue = 0;
+		tem_stcCamera.m_lMinValue = 1;
 
 		tem_vcCamera.push_back(tem_stcCamera);
 	}
@@ -5650,9 +5728,9 @@ void CXRayViewerv10Dlg::Self_EnsureItems2(void)
 		tem_stcCamera.m_strName = tem_strName;
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
-		tem_stcCamera.m_lCurValue = 13;
-		tem_stcCamera.m_lMaxValue = 17;
-		tem_stcCamera.m_lMinValue = 1;
+		tem_stcCamera.m_lCurValue = 11;
+		tem_stcCamera.m_lMaxValue = 11;
+		tem_stcCamera.m_lMinValue = 11;
 
 		tem_vcCamera.push_back(tem_stcCamera);
 	}
@@ -5664,8 +5742,8 @@ void CXRayViewerv10Dlg::Self_EnsureItems2(void)
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
 		tem_stcCamera.m_lCurValue = 30;
-		tem_stcCamera.m_lMaxValue = 100;
-		tem_stcCamera.m_lMinValue = 10;
+		tem_stcCamera.m_lMaxValue = 30;
+		tem_stcCamera.m_lMinValue = 30;
 
 		tem_vcCamera.push_back(tem_stcCamera);
 	}
@@ -5677,7 +5755,7 @@ void CXRayViewerv10Dlg::Self_EnsureItems2(void)
 		tem_stcCamera.m_lSuport = tem_lMark;
 		tem_stcCamera.m_lAuto = 0;
 		tem_stcCamera.m_lCurValue = 0;
-		tem_stcCamera.m_lMaxValue = 1;
+		tem_stcCamera.m_lMaxValue = 0;
 		tem_stcCamera.m_lMinValue = 0;
 
 		tem_vcCamera.push_back(tem_stcCamera);
@@ -6398,51 +6476,97 @@ void CXRayViewerv10Dlg::Self_ReadXml(CString xmlpath)
 	tem_nSetValue   = tem_xmlChildAtb->IntValue();
 	m_nHDRBackLgt   = tem_nSetValue;
 
-	//HDR-----------------------------------------------------------
+	//LDR-----------------------------------------------------------
 	//LLGT------------------
 	tem_xmlChildElt = tem_xmlChildElt->NextSiblingElement();
 	tem_cInfo = tem_xmlChildElt->Value();
 	tem_xmlChildAtb= tem_xmlChildElt->FirstAttribute();
 	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+
 	tem_xmlChildAtb = tem_xmlChildAtb->Next();
 	tem_nSetValue   = tem_xmlChildAtb->IntValue();
-	m_nLowLight= tem_nSetValue;
+	m_nNorLightL    = tem_nSetValue;
+
+	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+	tem_nSetValue   = tem_xmlChildAtb->IntValue();
+	m_nHigLightL    = tem_nSetValue;
+
+	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+	tem_nSetValue   = tem_xmlChildAtb->IntValue();
+	m_nLowLightL    = tem_nSetValue;
 
 	//LGRY------------------
 	tem_xmlChildElt = tem_xmlChildElt->NextSiblingElement();
 	tem_cInfo = tem_xmlChildElt->Value();
 	tem_xmlChildAtb= tem_xmlChildElt->FirstAttribute();
 	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+
 	tem_xmlChildAtb = tem_xmlChildAtb->Next();
 	tem_nSetValue   = tem_xmlChildAtb->IntValue();
-	m_nLowGray= tem_nSetValue;
+	m_nNorGrayL     = tem_nSetValue;
+
+	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+	tem_nSetValue   = tem_xmlChildAtb->IntValue();
+	m_nHigGrayL     = tem_nSetValue;
+
+	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+	tem_nSetValue   = tem_xmlChildAtb->IntValue();
+	m_nLowGrayL     = tem_nSetValue;
 
 	//LDLY------------------
 	tem_xmlChildElt = tem_xmlChildElt->NextSiblingElement();
 	tem_cInfo = tem_xmlChildElt->Value();
 	tem_xmlChildAtb= tem_xmlChildElt->FirstAttribute();
 	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+
 	tem_xmlChildAtb = tem_xmlChildAtb->Next();
 	tem_nSetValue   = tem_xmlChildAtb->IntValue();
-	m_nLowDelay= tem_nSetValue;
+	m_nNorDelayL    = tem_nSetValue;
+
+	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+	tem_nSetValue   = tem_xmlChildAtb->IntValue();
+	m_nHigDelayL    = tem_nSetValue;
+
+	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+	tem_nSetValue   = tem_xmlChildAtb->IntValue();
+	m_nLowDelayL    = tem_nSetValue;
 
 	//LBCK------------------
 	tem_xmlChildElt = tem_xmlChildElt->NextSiblingElement();
 	tem_cInfo = tem_xmlChildElt->Value();
 	tem_xmlChildAtb= tem_xmlChildElt->FirstAttribute();
 	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+
 	tem_xmlChildAtb = tem_xmlChildAtb->Next();
 	tem_nSetValue   = tem_xmlChildAtb->IntValue();
-	m_nLowBackLgt= tem_nSetValue;
+	m_nNorBackLgtL  = tem_nSetValue;
 
+	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+	tem_nSetValue   = tem_xmlChildAtb->IntValue();
+	m_nHigBackLgtL  = tem_nSetValue;
+
+	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+	tem_nSetValue   = tem_xmlChildAtb->IntValue();
+	m_nLowBackLgtL  = tem_nSetValue;
+
+	//HDR-----------------------------------------------------------
 	//HLGT------------------
 	tem_xmlChildElt = tem_xmlChildElt->NextSiblingElement();
 	tem_cInfo = tem_xmlChildElt->Value();
 	tem_xmlChildAtb= tem_xmlChildElt->FirstAttribute();
 	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+
 	tem_xmlChildAtb = tem_xmlChildAtb->Next();
 	tem_nSetValue   = tem_xmlChildAtb->IntValue();
-	m_nHigLight= tem_nSetValue;
+	m_nNorLight     = tem_nSetValue;
+
+	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+	tem_nSetValue   = tem_xmlChildAtb->IntValue();
+	m_nHigLight     = tem_nSetValue;
+
+	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+	tem_nSetValue   = tem_xmlChildAtb->IntValue();
+	m_nLowLight     = tem_nSetValue;
 
 	//HGRY------------------
 	tem_xmlChildElt = tem_xmlChildElt->NextSiblingElement();
@@ -6451,16 +6575,33 @@ void CXRayViewerv10Dlg::Self_ReadXml(CString xmlpath)
 	tem_xmlChildAtb = tem_xmlChildAtb->Next();
 	tem_xmlChildAtb = tem_xmlChildAtb->Next();
 	tem_nSetValue   = tem_xmlChildAtb->IntValue();
-	m_nHigGray= tem_nSetValue;
+	m_nNorGray      = tem_nSetValue;
+
+	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+	tem_nSetValue   = tem_xmlChildAtb->IntValue();
+	m_nHigGray      = tem_nSetValue;
+
+	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+	tem_nSetValue   = tem_xmlChildAtb->IntValue();
+	m_nLowGray      = tem_nSetValue;
 
 	//HDLY------------------
 	tem_xmlChildElt = tem_xmlChildElt->NextSiblingElement();
 	tem_cInfo = tem_xmlChildElt->Value();
 	tem_xmlChildAtb= tem_xmlChildElt->FirstAttribute();
 	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+
 	tem_xmlChildAtb = tem_xmlChildAtb->Next();
 	tem_nSetValue   = tem_xmlChildAtb->IntValue();
-	m_nHigDelay= tem_nSetValue;
+	m_nNorDelay     = tem_nSetValue;
+
+	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+	tem_nSetValue   = tem_xmlChildAtb->IntValue();
+	m_nHigDelay     = tem_nSetValue;
+
+	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+	tem_nSetValue   = tem_xmlChildAtb->IntValue();
+	m_nLowDelay     = tem_nSetValue;
 
 	//HBCK------------------
 	tem_xmlChildElt = tem_xmlChildElt->NextSiblingElement();
@@ -6469,8 +6610,15 @@ void CXRayViewerv10Dlg::Self_ReadXml(CString xmlpath)
 	tem_xmlChildAtb = tem_xmlChildAtb->Next();
 	tem_xmlChildAtb = tem_xmlChildAtb->Next();
 	tem_nSetValue   = tem_xmlChildAtb->IntValue();
-	m_nHigBackLgt= tem_nSetValue;
+	m_nNorBackLgt   = tem_nSetValue;
 
+	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+	tem_nSetValue   = tem_xmlChildAtb->IntValue();
+	m_nHigBackLgt   = tem_nSetValue;
+
+	tem_xmlChildAtb = tem_xmlChildAtb->Next();
+	tem_nSetValue   = tem_xmlChildAtb->IntValue();
+	m_nLowBackLgt   = tem_nSetValue;
 }
 
 
@@ -7016,7 +7164,7 @@ void CXRayViewerv10Dlg::Self_CapatureImg(CString imgname)
 }
 
 
-void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname)
+void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 {
 	//文件命名---------------------------------------------------------------------------
 	CString    tem_strLowImg    = m_strThumbDoc;      //欠曝图像
@@ -7064,49 +7212,114 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname)
 		tem_strHDRImg += _T(".jpg");
 		tem_strIntImg += _T(".jpg");
 	}
-
-	//拍摄图像---------------------------------------------------------------------------
+	/*
+	*     说明
+	*   由于不同拍照间不需要再设置不同灰阶和逆光对比，因此将这两项设置注释，以提升效率
+	*
+	*/
+	if (mode == 1)
+	{
+		//调节灯箱**********************************
+		AdjustRelay(m_nNorLight, m_nLastRelay);
+		//调节灰阶----------------------------------
+//  		m_conVideoCtrl.SetGamma(g_nGrayValue[m_nNorGray][0], 0);
+//  		m_conVideoCtrl.SetGain(g_nGrayValue[m_nNorGray][1], 0);
+		//调节逆光对比------------------------------
+// 		m_conVideoCtrl.SetBacklightCom(m_nNorBackLgt, 0);
+		//设置延时----------------------------------
+		Self_TimeDelay(m_nNorDelay*100);
+	} 
+	else
+	{
+		//调节灯箱**********************************
+		AdjustRelay(m_nNorLightL, m_nLastRelay);
+		//调节灰阶----------------------------------
+// 		m_conVideoCtrl.SetGamma(g_nGrayValue[m_nNorGrayL][0], 0);
+// 		m_conVideoCtrl.SetGain(g_nGrayValue[m_nNorGrayL][1], 0);
+		//调节逆光对比------------------------------
+// 		m_conVideoCtrl.SetBacklightCom(m_nNorBackLgtL, 0);
+		//设置延时----------------------------------
+		Self_TimeDelay(m_nNorDelayL*100);
+	}
 	m_conVideoCtrl.CaptureImage(tem_strNorImg);
 
-	//调节灯箱---------------------------------------------------------------------------
-	AdjustRelay(m_nLowLight, m_nLastRelay);
-	//调节灰阶----------------------------------
-	m_conVideoCtrl.SetGamma(g_nGrayValue[m_nLowGray][0], 0);
-	m_conVideoCtrl.SetGain(g_nGrayValue[m_nLowGray][1], 0);
-	//调节逆光对比------------------------------
-	m_conVideoCtrl.SetBacklightCom(m_nLowBackLgt, 0);
-	//设置延时----------------------------------
-	Self_TimeDelay(m_nLowDelay*100);
+	if (mode == 1)
+	{
+		//调节灯箱**********************************
+		AdjustRelay(m_nLowLight, m_nNorLight);
+		//调节灰阶----------------------------------
+// 		m_conVideoCtrl.SetGamma(g_nGrayValue[m_nLowGray][0], 0);
+// 		m_conVideoCtrl.SetGain(g_nGrayValue[m_nLowGray][1], 0);
+		//调节逆光对比------------------------------
+// 		m_conVideoCtrl.SetBacklightCom(m_nLowBackLgt, 0);
+		//设置延时----------------------------------
+		Self_TimeDelay(m_nLowDelay*100);
+	} 
+	else
+	{
+		//调节灯箱**********************************
+		AdjustRelay(m_nLowLightL, m_nNorLightL);
+		//调节灰阶----------------------------------
+// 		m_conVideoCtrl.SetGamma(g_nGrayValue[m_nLowGrayL][0], 0);
+// 		m_conVideoCtrl.SetGain(g_nGrayValue[m_nLowGrayL][1], 0);
+		//调节逆光对比------------------------------
+// 		m_conVideoCtrl.SetBacklightCom(m_nLowBackLgtL, 0);
+		//设置延时----------------------------------
+		Self_TimeDelay(m_nLowDelayL*100);
+	}
 	//拍照-------------------------------------
 	m_conVideoCtrl.CaptureImage(tem_strLowImg);
 
-
-	//调节灯箱---------------------------------------------------------------------------
-	AdjustRelay(m_nHigLight, m_nLowLight);
-	//调节灰阶----------------------------------
-	m_conVideoCtrl.SetGamma(g_nGrayValue[m_nHigGray][0], 0);
-	m_conVideoCtrl.SetGain(g_nGrayValue[m_nHigGray][1], 0);
-	//调节逆光对比------------------------------
-	m_conVideoCtrl.SetBacklightCom(m_nHigBackLgt, 0);
-	//设置延时----------------------------------
-	Self_TimeDelay(m_nHigDelay*100);
+	if (mode == 1)
+	{
+		//调节灯箱**********************************
+		AdjustRelay(m_nHigLight, m_nLowLight);
+		//调节灰阶----------------------------------
+// 		m_conVideoCtrl.SetGamma(g_nGrayValue[m_nHigGray][0], 0);
+// 		m_conVideoCtrl.SetGain(g_nGrayValue[m_nHigGray][1], 0);
+		//调节逆光对比------------------------------
+// 		m_conVideoCtrl.SetBacklightCom(m_nHigBackLgt, 0);
+		//设置延时----------------------------------
+		Self_TimeDelay(m_nHigDelay*100);
+	} 
+	else
+	{
+		//调节灯箱**********************************
+		AdjustRelay(m_nHigLightL, m_nLowLightL);
+		//调节灰阶----------------------------------
+// 		m_conVideoCtrl.SetGamma(g_nGrayValue[m_nHigGrayL][0], 0);
+// 		m_conVideoCtrl.SetGain(g_nGrayValue[m_nHigGrayL][1], 0);
+		//调节逆光对比------------------------------
+// 		m_conVideoCtrl.SetBacklightCom(m_nHigBackLgtL, 0);
+		//设置延时----------------------------------
+		Self_TimeDelay(m_nHigDelayL*100);
+	}
 	//拍照-------------------------------------
 	m_conVideoCtrl.CaptureImage(tem_strHigImg);
 
 	//合成图像--------------------------------------------------------------------------
 	Self_HDRMergeImgs(tem_strHigImg, tem_strNorImg, tem_strLowImg, tem_strHDRImg);
-	::DeleteFile(tem_strHigImg);
-	::DeleteFile(tem_strNorImg);
-	::DeleteFile(tem_strLowImg);
+// 	::DeleteFile(tem_strHigImg);
+// 	::DeleteFile(tem_strNorImg);
+// 	::DeleteFile(tem_strLowImg);
 
 	//恢复参数--------------------------------------------------------------------------
-	//恢复灯箱---------------------------------
-	AdjustRelay(m_nLastRelay, m_nHigLight);
+	if (mode == 1)
+	{
+		//恢复灯箱---------------------------------
+		AdjustRelay(m_nLastRelay, m_nHigLight);
+	} 
+	else
+	{
+		//恢复灯箱---------------------------------
+		AdjustRelay(m_nLastRelay, m_nHigLightL);
+	}
 	//恢复灰阶---------------------------------
-	m_conVideoCtrl.SetGamma(g_nGrayValue[m_nLastGray][0], 0);
-	m_conVideoCtrl.SetGain(g_nGrayValue[m_nLastGray][1], 0);	
+// 	m_conVideoCtrl.SetGamma(g_nGrayValue[m_nLastGray][0], 0);
+// 	m_conVideoCtrl.SetGain(g_nGrayValue[m_nLastGray][1], 0);	
 	//恢复逆光对比-----------------------------
-	m_conVideoCtrl.SetBacklightCom(m_nLastBackLight, 0);
+// 	m_conVideoCtrl.SetBacklightCom(m_nLastBackLight, 0);
+	
 
 	//是否需要添加水印-------------------------------------------------------------------
 	if (m_nWaterMark == 1)

@@ -152,4 +152,6 @@ public:
 	afx_msg void OnBnClickedBtnLdrcap();
 	afx_msg void OnCustomdrawSlidAdfocus(NMHDR *pNMHDR, LRESULT *pResult);
 	CSliderCtrl m_slidAdjFocus;
+
+	int       m_nFocusValue;       //当前焦点值
 };

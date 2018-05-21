@@ -426,6 +426,7 @@ BOOL CUDSONE::OnInitDialog()
 	/*10、调焦控件初始化*/
 	m_slidAdjFocus.SetRange(0, 255, TRUE);
 	m_slidAdjFocus.SetPageSize(1);
+	m_slidAdjFocus.SetPos(m_nFocusValue);
 	//获取当前焦点值，并设置焦点值
 
 
@@ -625,6 +626,11 @@ void CUDSONE::Self_ReadIni(CString inipath)
 	::GetPrivateProfileString(_T("BaseSet"), _T("ViewBottom"), _T("没有找到ViewBottom信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, tem_strIniPath);
 	tem_nRead     = _ttoi(tem_strRead);
 	m_lBottomSite = tem_nRead;
+	tem_strRead.ReleaseBuffer();
+
+	::GetPrivateProfileString(_T("BaseSet"), _T("FocusValue"), _T("没有找到FocusValue信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, tem_strIniPath);
+	tem_nRead     = _ttoi(tem_strRead);
+	m_nFocusValue = tem_nRead;
 	tem_strRead.ReleaseBuffer();
 }
 
@@ -1931,7 +1937,7 @@ void CUDSONE::OnClickedChkHdr()
 void CUDSONE::OnBnClickedBtnHdrcap()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	::SendMessage(m_hParentWnd, WM_SCANSET, 30, 0);
+	::SendMessage(m_hParentWnd, WM_SCANSET, 30, 1);
 }
 
 
@@ -1939,7 +1945,7 @@ void CUDSONE::OnBnClickedBtnHdrcap()
 void CUDSONE::OnBnClickedBtnLdrcap()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	::SendMessage(m_hParentWnd, WM_SCANSET, 32, 0);
+	::SendMessage(m_hParentWnd, WM_SCANSET, 30, 0);
 }
 
 
@@ -2082,6 +2088,13 @@ void CUDSONE::OnCustomdrawSlidAdfocus(NMHDR *pNMHDR, LRESULT *pResult)
 	ScreenToClient(&tem_rcRect);                              //转到客户端界面
 	InvalidateRect(&tem_rcRect);                              //最后刷新对话框背景 
 
+	/*2、向主窗口发送消息*/
+	::SendMessage(m_hParentWnd, WM_SCANSET, 32, tem_nCurSel);
+
+	/*3、写入配置文件*/
+	CString tem_strCurSel = _T("");
+	tem_strCurSel.Format(_T("%d"), tem_nCurSel);
+	::WritePrivateProfileString(_T("BaseSet"), _T("FocusValue"), tem_strCurSel, m_strIniPath);
 
 	*pResult = 0;
 }

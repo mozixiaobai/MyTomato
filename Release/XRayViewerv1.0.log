@@ -1,14 +1,17 @@
-﻿生成启动时间为 2018-5-18 16:49:16。
+﻿生成启动时间为 2018-5-21 15:40:18。
      1>项目“D:\DataBase\XRayViewer_v1.0\XRayViewerv1.0\XRayViewerv1.0.vcxproj”在节点 2 上(build 个目标)。
      1>InitializeBuildStatus:
          正在创建“Release\SmartImage.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
        ClCompile:
          所有输出均为最新。
-         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /Od /Oi /Oy- /GL /D WIN32 /D _WINDOWS /D NDEBUG /D _UNICODE /D UNICODE /D _AFXDLL /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Release\SmartImage.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt UDSONE.cpp XRayViewerv1.0Dlg.cpp
-         UDSONE.cpp
-     1>UDSONE.cpp(304): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(283) : 参见“wcscpy”的声明
-     1>UDSONE.cpp(1415): warning C4018: “<”: 有符号/无符号不匹配
+         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /Od /Oi /Oy- /GL /D WIN32 /D _WINDOWS /D NDEBUG /D _UNICODE /D UNICODE /D _AFXDLL /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Release\SmartImage.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt XRayViewerv1.0.cpp XRayViewerv1.0Dlg.cpp
+         XRayViewerv1.0.cpp
+     1>d:\database\xrayviewer_v1.0\release\pub\include\xiofile.h(25): warning C4996: '_wfopen': This function or variable may be unsafe. Consider using _wfopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\wchar.h(815) : 参见“_wfopen”的声明
+     1>d:\database\xrayviewer_v1.0\release\pub\include\xiofile.h(117): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(253) : 参见“fscanf”的声明
+     1>d:\program files (x86)\opencv\opencv\build\include\opencv2\flann\logger.h(66): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(234) : 参见“fopen”的声明
          XRayViewerv1.0Dlg.cpp
      1>d:\database\xrayviewer_v1.0\release\pub\include\xiofile.h(25): warning C4996: '_wfopen': This function or variable may be unsafe. Consider using _wfopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\wchar.h(815) : 参见“_wfopen”的声明
@@ -16,124 +19,124 @@
                  D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(253) : 参见“fscanf”的声明
      1>d:\program files (x86)\opencv\opencv\build\include\opencv2\flann\logger.h(66): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(234) : 参见“fopen”的声明
-     1>XRayViewerv1.0Dlg.cpp(208): warning C4305: “=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(862): warning C4305: “=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(870): warning C4305: “=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(1832): warning C4101: “tem_lAuto”: 未引用的局部变量
-     1>XRayViewerv1.0Dlg.cpp(1831): warning C4101: “tem_lCur”: 未引用的局部变量
-     1>XRayViewerv1.0Dlg.cpp(2947): warning C4305: “+=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(2952): warning C4305: “+=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(2963): warning C4305: “-=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(2968): warning C4305: “-=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(3124): warning C4800: “BOOL”: 将值强制为布尔值“true”或“false”(性能警告)
-     1>XRayViewerv1.0Dlg.cpp(3124): warning C4800: “BOOL”: 将值强制为布尔值“true”或“false”(性能警告)
-     1>XRayViewerv1.0Dlg.cpp(7427): warning C4996: '_swprintf': This function or variable may be unsafe. Consider using _swprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>XRayViewerv1.0Dlg.cpp(217): warning C4305: “=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(917): warning C4305: “=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(925): warning C4305: “=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(1910): warning C4101: “tem_lAuto”: 未引用的局部变量
+     1>XRayViewerv1.0Dlg.cpp(1909): warning C4101: “tem_lCur”: 未引用的局部变量
+     1>XRayViewerv1.0Dlg.cpp(3025): warning C4305: “+=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(3030): warning C4305: “+=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(3041): warning C4305: “-=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(3046): warning C4305: “-=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(3202): warning C4800: “BOOL”: 将值强制为布尔值“true”或“false”(性能警告)
+     1>XRayViewerv1.0Dlg.cpp(3202): warning C4800: “BOOL”: 将值强制为布尔值“true”或“false”(性能警告)
+     1>XRayViewerv1.0Dlg.cpp(7640): warning C4996: '_swprintf': This function or variable may be unsafe. Consider using _swprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\wchar.h(761) : 参见“_swprintf”的声明
-     1>XRayViewerv1.0Dlg.cpp(7545): warning C4996: '_swprintf': This function or variable may be unsafe. Consider using _swprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>XRayViewerv1.0Dlg.cpp(7758): warning C4996: '_swprintf': This function or variable may be unsafe. Consider using _swprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\wchar.h(761) : 参见“_swprintf”的声明
-     1>XRayViewerv1.0Dlg.cpp(7412): warning C4101: “tem_nSite”: 未引用的局部变量
-     1>XRayViewerv1.0Dlg.cpp(7615): warning C4996: '_swprintf': This function or variable may be unsafe. Consider using _swprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>XRayViewerv1.0Dlg.cpp(7625): warning C4101: “tem_nSite”: 未引用的局部变量
+     1>XRayViewerv1.0Dlg.cpp(7828): warning C4996: '_swprintf': This function or variable may be unsafe. Consider using _swprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\wchar.h(761) : 参见“_swprintf”的声明
-     1>XRayViewerv1.0Dlg.cpp(8099): warning C4996: '_swprintf': This function or variable may be unsafe. Consider using _swprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>XRayViewerv1.0Dlg.cpp(8312): warning C4996: '_swprintf': This function or variable may be unsafe. Consider using _swprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\wchar.h(761) : 参见“_swprintf”的声明
-     1>XRayViewerv1.0Dlg.cpp(8110): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(8119): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(8196): warning C4101: “page”: 未引用的局部变量
-     1>XRayViewerv1.0Dlg.cpp(8196): warning C4101: “doc”: 未引用的局部变量
-     1>XRayViewerv1.0Dlg.cpp(8281): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>XRayViewerv1.0Dlg.cpp(8323): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(8332): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(8409): warning C4101: “page”: 未引用的局部变量
+     1>XRayViewerv1.0Dlg.cpp(8409): warning C4101: “doc”: 未引用的局部变量
+     1>XRayViewerv1.0Dlg.cpp(8494): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(110) : 参见“strcat”的声明
-     1>XRayViewerv1.0Dlg.cpp(8284): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>XRayViewerv1.0Dlg.cpp(8497): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(110) : 参见“strcat”的声明
-     1>XRayViewerv1.0Dlg.cpp(8893): warning C4305: “+=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(8912): warning C4305: “-=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(9519): warning C4305: “=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(9519): warning C4305: “=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(9519): warning C4305: “=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(9520): warning C4305: “=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(9520): warning C4305: “=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(9520): warning C4305: “=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(9521): warning C4305: “=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(9521): warning C4305: “=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(9521): warning C4305: “=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(9569): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(9845): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(9850): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(9869): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(9874): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(9889): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(9894): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(9905): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(9910): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(9821): warning C4101: “tem_nDrawY”: 未引用的局部变量
-     1>XRayViewerv1.0Dlg.cpp(9821): warning C4101: “tem_nDrawW”: 未引用的局部变量
-     1>XRayViewerv1.0Dlg.cpp(9821): warning C4101: “tem_nDrawH”: 未引用的局部变量
-     1>XRayViewerv1.0Dlg.cpp(9821): warning C4101: “tem_nDrawX”: 未引用的局部变量
-     1>XRayViewerv1.0Dlg.cpp(9982): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10205): warning C4305: “+=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(10215): warning C4305: “-=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(10248): warning C4305: “+=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(10253): warning C4305: “-=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(10262): warning C4305: “=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(10304): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10305): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10325): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10326): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10343): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10344): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10345): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10346): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10417): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10418): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10438): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10439): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10511): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10512): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10513): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10514): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10516): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10517): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10519): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10520): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10573): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10574): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10575): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10576): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10578): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10579): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10581): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10582): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10709): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10718): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10769): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10770): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10873): warning C4018: “<”: 有符号/无符号不匹配
-     1>XRayViewerv1.0Dlg.cpp(10875): warning C4018: “<”: 有符号/无符号不匹配
-     1>XRayViewerv1.0Dlg.cpp(10917): warning C4244: “=”: 从“long”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10918): warning C4244: “=”: 从“long”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(10921): warning C4305: “=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(10922): warning C4305: “=”: 从“double”到“float”截断
-     1>XRayViewerv1.0Dlg.cpp(10971): warning C4101: “page”: 未引用的局部变量
-     1>XRayViewerv1.0Dlg.cpp(10971): warning C4101: “doc”: 未引用的局部变量
-     1>XRayViewerv1.0Dlg.cpp(11113): warning C4018: “<=”: 有符号/无符号不匹配
-     1>XRayViewerv1.0Dlg.cpp(11131): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(11132): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(11133): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(11134): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(11137): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(11138): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(11139): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(11140): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(11216): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(11217): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(11220): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(11221): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(11237): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(11238): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(11239): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(11240): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-     1>XRayViewerv1.0Dlg.cpp(11264): warning C4800: “BOOL”: 将值强制为布尔值“true”或“false”(性能警告)
-     1>XRayViewerv1.0Dlg.cpp(11264): warning C4800: “BOOL”: 将值强制为布尔值“true”或“false”(性能警告)
-     1>XRayViewerv1.0Dlg.cpp(11402): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(9106): warning C4305: “+=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(9125): warning C4305: “-=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(9732): warning C4305: “=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(9732): warning C4305: “=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(9732): warning C4305: “=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(9733): warning C4305: “=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(9733): warning C4305: “=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(9733): warning C4305: “=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(9734): warning C4305: “=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(9734): warning C4305: “=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(9734): warning C4305: “=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(9782): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10058): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10063): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10082): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10087): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10102): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10107): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10118): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10123): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10034): warning C4101: “tem_nDrawY”: 未引用的局部变量
+     1>XRayViewerv1.0Dlg.cpp(10034): warning C4101: “tem_nDrawW”: 未引用的局部变量
+     1>XRayViewerv1.0Dlg.cpp(10034): warning C4101: “tem_nDrawH”: 未引用的局部变量
+     1>XRayViewerv1.0Dlg.cpp(10034): warning C4101: “tem_nDrawX”: 未引用的局部变量
+     1>XRayViewerv1.0Dlg.cpp(10195): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10418): warning C4305: “+=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(10428): warning C4305: “-=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(10461): warning C4305: “+=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(10466): warning C4305: “-=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(10475): warning C4305: “=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(10517): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10518): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10538): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10539): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10556): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10557): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10558): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10559): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10630): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10631): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10651): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10652): warning C4244: “=”: 从“double”转换到“LONG”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10724): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10725): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10726): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10727): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10729): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10730): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10732): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10733): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10786): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10787): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10788): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10789): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10791): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10792): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10794): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10795): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10922): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10931): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10982): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(10983): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11086): warning C4018: “<”: 有符号/无符号不匹配
+     1>XRayViewerv1.0Dlg.cpp(11088): warning C4018: “<”: 有符号/无符号不匹配
+     1>XRayViewerv1.0Dlg.cpp(11130): warning C4244: “=”: 从“long”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11131): warning C4244: “=”: 从“long”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11134): warning C4305: “=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(11135): warning C4305: “=”: 从“double”到“float”截断
+     1>XRayViewerv1.0Dlg.cpp(11184): warning C4101: “page”: 未引用的局部变量
+     1>XRayViewerv1.0Dlg.cpp(11184): warning C4101: “doc”: 未引用的局部变量
+     1>XRayViewerv1.0Dlg.cpp(11326): warning C4018: “<=”: 有符号/无符号不匹配
+     1>XRayViewerv1.0Dlg.cpp(11344): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11345): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11346): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11347): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11350): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11351): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11352): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11353): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11429): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11430): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11433): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11434): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11450): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11451): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11452): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11453): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>XRayViewerv1.0Dlg.cpp(11477): warning C4800: “BOOL”: 将值强制为布尔值“true”或“false”(性能警告)
+     1>XRayViewerv1.0Dlg.cpp(11477): warning C4800: “BOOL”: 将值强制为布尔值“true”或“false”(性能警告)
+     1>XRayViewerv1.0Dlg.cpp(11615): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
        ResourceCompile:
          所有输出均为最新。
        Link:
@@ -171,4 +174,4 @@
 
 生成成功。
 
-已用时间 00:00:06.23
+已用时间 00:00:06.54

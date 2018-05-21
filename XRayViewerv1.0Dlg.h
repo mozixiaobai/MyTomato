@@ -421,21 +421,46 @@ public:
 	int       m_nHDRCapDelay;       //HDR拍摄间隔
 
 	BOOL      m_BHDRCap;            //HDR拍摄开关
+	int       m_nNorLight;          //正常灯箱亮度
 	int       m_nLowLight;          //欠曝时灯箱亮度
 	int       m_nHigLight;          //过曝时灯箱亮度
 
+	int       m_nNorGray;           //正常灰阶
 	int       m_nLowGray;           //欠曝灰阶
 	int       m_nHigGray;           //过曝灰阶
 
+	int       m_nNorDelay;          //首张图像延时(从当前灯箱的其他亮度调节至10需要的时长)
 	int       m_nLowDelay;          //欠曝延时
 	int       m_nHigDelay;          //过曝延时
 
+	int       m_nNorBackLgt;        //正常逆光对比
 	int       m_nLowBackLgt;        //欠曝逆光对比
 	int       m_nHigBackLgt;        //过曝逆光对比
 
-	void Self_CaptureImgHDR(CString imgname);
+	//LDR拍摄
+	int       m_nNorLightL;          //正常灯箱亮度
+	int       m_nLowLightL;          //欠曝时灯箱亮度
+	int       m_nHigLightL;          //过曝时灯箱亮度
+
+	int       m_nNorGrayL;           //正常灰阶
+	int       m_nLowGrayL;           //欠曝灰阶
+	int       m_nHigGrayL;           //过曝灰阶
+
+	int       m_nNorDelayL;          //首张图像延时(从当前灯箱的其他亮度调节至10需要的时长)
+	int       m_nLowDelayL;          //欠曝延时
+	int       m_nHigDelayL;          //过曝延时
+
+	int       m_nNorBackLgtL;        //正常逆光对比
+	int       m_nLowBackLgtL;        //欠曝逆光对比
+	int       m_nHigBackLgtL;        //过曝逆光对比
+
+
+	void Self_CaptureImgHDR(CString imgname, int mode);
 	void Self_HDRMergeImgs(CString higimg, CString norimg, CString lowimg, CString outimg);
 
 	//调焦
 	int       m_nVidoeMode;        //MJPG/YUY2
+	int       m_nFocusValue;       //当前焦点值
+	int       m_nDevIndex;         //当前打开设备索引
+	HINSTANCE m_hDllInst;          //加载调焦dll     
 };
