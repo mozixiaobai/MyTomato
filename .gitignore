@@ -1,6 +1,5 @@
 ##ignore this file##
-/res/
-/Release/
+#MFC:
 *.tlog
 *.log
 *.manifest
@@ -12,3 +11,5 @@
 *.png
 *.rc2
 *.ico
+res
+Release
