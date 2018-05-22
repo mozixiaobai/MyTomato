@@ -660,7 +660,6 @@ void CXRayViewerv10Dlg::OnPaint()
 	}
 	else
 	{
-		
 		CPaintDC  dc(this);
 		CDC*      pDC = &dc;
 		CDC       dcMem;
@@ -684,6 +683,7 @@ void CXRayViewerv10Dlg::OnPaint()
  			Self_ShowPicCtrl();
 			m_BClickTab = FALSE;
  		}
+
 //		CDialogEx::OnPaint();
 	}
 }
@@ -9116,6 +9116,7 @@ void CXRayViewerv10Dlg::OnBnClickedBtnLast()
 void CXRayViewerv10Dlg::OnBnClickedBtnNext()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	
 	BOOL  tem_BRC = FALSE;
 	if (m_BShowPicCtrl)
 	{
@@ -9129,7 +9130,6 @@ void CXRayViewerv10Dlg::OnBnClickedBtnNext()
 	{
 		m_conVideoCtrl.ZoomOut();
 	}
-	
 	
 }
 
@@ -9304,18 +9304,16 @@ void CXRayViewerv10Dlg::Self_ShowPicCtrl(void)
 		GetDlgItem(IDC_STA_CURDOCPATH)->ShowWindow(SW_HIDE);
 		GetDlgItem(IDC_STA_PIC)->ShowWindow(SW_NORMAL);
 
+		::SendMessage(this->m_hWnd, WM_SIZE, 0, 0);
+
 		//显示提示信息	
 		Self_CVShowTipImage(_T("res\\tips.jpg"));
-
-		::SendMessage(this->m_hWnd, WM_SIZE, 0, 0);
 
 		return;
 	}
 
 	m_BShowPicCtrl = TRUE;
 	GetDlgItem(IDC_UDS_VIDEOCTRL1)->ShowWindow(SW_HIDE);
-//	GetDlgItem(IDC_BTN_LAST)->ShowWindow(SW_HIDE);
-//	GetDlgItem(IDC_BTN_NEXT)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_BTN_FULLSCREEN)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_BTN_DRAG)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_STA_CURDOC)->ShowWindow(SW_HIDE);
@@ -9386,7 +9384,7 @@ void CXRayViewerv10Dlg::Self_CVShowTipImage(CString imgpath)
 	
 	std::string strTempData = (CStringA)tem_strImgPath;
 	m_cvTipsImg = imread(strTempData);
-
+	
 	m_rcImageRect.left     = 0;
 	m_rcImageRect.top      = 0;
 	m_rcImageRect.right    = m_cvTipsImg.cols;
@@ -9395,7 +9393,7 @@ void CXRayViewerv10Dlg::Self_CVShowTipImage(CString imgpath)
 	Self_ResizeImage(GetDlgItem(IDC_STA_PIC), m_cvTipsImg);
 	Self_ShowMatImage2(m_cvTipsImg, m_rcImageShow);
 	m_cvSrcImage.release();
-	m_cvDstImage.release();
+	m_cvDstImage.release();	
 }
 
 void CXRayViewerv10Dlg::Self_ResetImageRect(void)
@@ -9414,7 +9412,6 @@ void CXRayViewerv10Dlg::Self_ResetImageRect(void)
 		m_rcImageRect.right    = m_cvDstImage.cols;
 		m_rcImageRect.bottom   = m_cvDstImage.rows;
 	}
-	
 }
 
 

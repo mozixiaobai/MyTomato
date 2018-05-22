@@ -34,11 +34,14 @@
 #include "pdflib.hpp"
 #include "UDSWaterSet.h"
 #include "cv.h"
-#include "opencv2\highgui\highgui.hpp"
-#include "opencv2\core\core.hpp"
+#include "opencv2/photo.hpp"
+#include "opencv2/imgcodecs.hpp"
+#include "opencv2/imgproc.hpp"
+#include "opencv2/highgui.hpp"
 #include "CvvImage.h"      //ATL和cvvImage同时定义了CImage
 #include "PngButton.h"
 #include "UDSSelectFormat.h"
+#include <iostream>
 
 
 
