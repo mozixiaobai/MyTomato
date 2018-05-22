@@ -615,9 +615,27 @@ BOOL CXRayViewerv10Dlg::OnInitDialog()
 		
 		tem_nRC = camSetFocusValue(m_nDevIndex, m_nFocusValue);
 	}
-	
 
-	
+	/*14、计算快门曲线*/
+	float tem_fShutterL, tem_fShutterN, tem_fShutterH;
+
+	/*a、低密度快门*/
+	tem_fShutterL = tem_fShutterN = tem_fShutterH = 0.0;
+	tem_fShutterL = Self_GetShutter(m_nLowLightL);
+	tem_fShutterN = Self_GetShutter(m_nNorLightL);
+	tem_fShutterH = Self_GetShutter(m_nHigLightL);
+	m_vcLShutter.push_back(tem_fShutterL);
+	m_vcLShutter.push_back(tem_fShutterN);
+	m_vcLShutter.push_back(tem_fShutterH);
+
+	/*b、高密度快门*/
+	tem_fShutterL = tem_fShutterN = tem_fShutterH = 0.0;
+	tem_fShutterL = Self_GetShutter(m_nLowLight);
+	tem_fShutterN = Self_GetShutter(m_nNorLight);
+	tem_fShutterH = Self_GetShutter(m_nHigLight);
+	m_vcHShutter.push_back(tem_fShutterL);
+	m_vcHShutter.push_back(tem_fShutterN);
+	m_vcHShutter.push_back(tem_fShutterH);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -1187,7 +1205,8 @@ void CXRayViewerv10Dlg::OnClose()
 			DeleteFile(*iter);
 		}
 	}
-
+	m_vcHShutter.clear();
+	m_vcLShutter.clear();
 
 	CDialogEx::OnClose();
 }
@@ -7298,7 +7317,8 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 	m_conVideoCtrl.CaptureImage(tem_strHigImg);
 
 	//合成图像--------------------------------------------------------------------------
-	Self_HDRMergeImgs(tem_strHigImg, tem_strNorImg, tem_strLowImg, tem_strHDRImg);
+//	Self_HDRMergeImgs(tem_strHigImg, tem_strNorImg, tem_strLowImg, tem_strHDRImg);
+	Self_HDRMergeImgs3_1(tem_strHigImg, tem_strNorImg, tem_strLowImg, tem_strHDRImg, mode);
 // 	::DeleteFile(tem_strHigImg);
 // 	::DeleteFile(tem_strNorImg);
 // 	::DeleteFile(tem_strLowImg);
@@ -7429,6 +7449,61 @@ void CXRayViewerv10Dlg::Self_HDRMergeImgs(CString higimg, CString norimg, CStrin
 	}
 	imwrite(tem_sOutImg, dst_mat);
 }
+
+
+
+void CXRayViewerv10Dlg::Self_HDRMergeImgs3_1(CString HigImg, CString NorImg, CString LowImg, CString outImg, int mode)
+{
+	/*1、加载图像*/
+	std::vector<Mat> tem_vcMatImgs;
+	CStringA tem_straLowImg(LowImg); string tem_sLowImg = tem_straLowImg.GetBuffer(0); tem_straLowImg.ReleaseBuffer();
+	CStringA tem_straNorImg(NorImg); string tem_sNorImg = tem_straNorImg.GetBuffer(0); tem_straNorImg.ReleaseBuffer();
+	CStringA tem_straHigImg(HigImg); string tem_sHigImg = tem_straHigImg.GetBuffer(0); tem_straHigImg.ReleaseBuffer();
+
+	Mat tem_mtInImg = imread(tem_sLowImg); 	tem_vcMatImgs.push_back(tem_mtInImg);
+	tem_mtInImg = imread(tem_sNorImg); 	tem_vcMatImgs.push_back(tem_mtInImg);
+	tem_mtInImg = imread(tem_sHigImg); 	tem_vcMatImgs.push_back(tem_mtInImg);
+
+	/*2、估计相机相应*/
+	Mat response;
+	Ptr<CalibrateDebevec> calibrate = createCalibrateDebevec();
+	if (mode == 1)
+	{
+		//高密度
+		calibrate->process(tem_vcMatImgs, response, m_vcHShutter);
+	}
+	else
+	{
+		//低密度
+		calibrate->process(tem_vcMatImgs, response, m_vcLShutter);
+	}
+
+	/*3、曝光合成*/
+	cv::Size size = tem_vcMatImgs[0].size();
+	Mat fusion = Mat::zeros(size, CV_32F);
+	Ptr<MergeMertens> merge_mertens = createMergeMertens();
+	merge_mertens->process(tem_vcMatImgs, fusion);
+
+	/*4、图像输出*/
+	Mat tem_mtFusion = fusion*255;
+	CStringA tem_straOutImg(outImg); string tem_sOutImg = tem_straOutImg.GetBuffer(0); tem_straOutImg.ReleaseBuffer();
+	imwrite(tem_sOutImg, tem_mtFusion);
+}
+
+
+float CXRayViewerv10Dlg::Self_GetShutter(int lightvalue)
+{
+	if (lightvalue == 0)
+	{
+		return 0;
+	}
+	float tem_dLux = 0.0;
+	tem_dLux = (-0.00854875)*lightvalue*lightvalue + (69.13044485)*lightvalue + (1367.25160760);
+
+	float tem_dShetter = tem_dLux/2000.0;
+	return tem_dShetter;
+}
+
 
 void CXRayViewerv10Dlg::Self_CaptureHdrImg(CString imgname)
 {

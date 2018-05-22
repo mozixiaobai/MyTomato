@@ -39,6 +39,20 @@ CXRayViewerv10App theApp;
 
 BOOL CXRayViewerv10App::InitInstance()
 {
+	//创建互斥量，保证只有一个实例运行-------------------------------------
+	m_hMutex = CreateMutex(NULL,TRUE,_T("UDSSmartImage"));
+	if (m_hMutex == NULL)
+	{
+		return FALSE;
+	}
+	if (GetLastError() == ERROR_ALREADY_EXISTS)
+	{
+		CloseHandle(m_hMutex);
+		m_hMutex = NULL;
+		return FALSE;
+	}
+	//---------------------------------------------------------------------
+
 	// 如果一个运行在 Windows XP 上的应用程序清单指定要
 	// 使用 ComCtl32.dll 版本 6 或更高版本来启用可视化方式，
 	//则需要 InitCommonControlsEx()。否则，将无法创建窗口。
@@ -93,3 +107,15 @@ BOOL CXRayViewerv10App::InitInstance()
 	return FALSE;
 }
 
+
+
+int CXRayViewerv10App::ExitInstance()
+{
+	// TODO: 在此添加专用代码和/或调用基类
+	if(m_hMutex != NULL)
+	{
+		CloseHandle(m_hMutex);	//关闭句柄
+	}
+
+	return CWinApp::ExitInstance();
+}

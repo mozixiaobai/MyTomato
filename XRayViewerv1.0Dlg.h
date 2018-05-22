@@ -466,4 +466,10 @@ public:
 	int       m_nFocusValue;       //当前焦点值
 	int       m_nDevIndex;         //当前打开设备索引
 	HINSTANCE m_hDllInst;          //加载调焦dll     
+	void Self_HDRMergeImgs3_1(CString HigImg, CString NorImg, CString LowImg, CString outImg, int mode);
+
+	//高密度和低密度拍照
+	std::vector<float> m_vcLShutter;
+	std::vector<float> m_vcHShutter;
+	float Self_GetShutter(int lightvalue);
 };

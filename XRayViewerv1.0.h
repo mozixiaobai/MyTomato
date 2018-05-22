@@ -27,6 +27,9 @@ public:
 // 实现
 
 	DECLARE_MESSAGE_MAP()
+
+	HANDLE    m_hMutex;  //创建、注销互斥量
+	virtual int ExitInstance();
 };
 
 extern CXRayViewerv10App theApp;
