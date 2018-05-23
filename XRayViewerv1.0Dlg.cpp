@@ -73,6 +73,7 @@ CXRayViewerv10Dlg::CXRayViewerv10Dlg(CWnd* pParent /*=NULL*/)
 	m_BShowList   = TRUE;
 	m_BFullScreen = FALSE;
 	m_BShowPicCtrl= FALSE;
+	m_BFirstCap   = TRUE;
 
 	
 }
@@ -246,6 +247,8 @@ BOOL CXRayViewerv10Dlg::OnInitDialog()
 	m_nHigGray     = 13;
 	m_nLowBackLgt  = 0;
 	m_nHigBackLgt  = 1;
+
+	m_nIntervalTime = 1000;
 	
 
 	m_BShowTab    = TRUE;
@@ -637,6 +640,11 @@ BOOL CXRayViewerv10Dlg::OnInitDialog()
 	m_vcHShutter.push_back(tem_fShutterN);
 	m_vcHShutter.push_back(tem_fShutterH);
 
+	/*15、计算拍摄时间间隔*/
+	Self_TimeDelay(5*100);  //500ms延时，否则摄像头未准备好，崩溃
+	m_nIntervalTime = Self_GetIntervalTime();
+	m_nIntervalTime = 3000;
+
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -701,7 +709,7 @@ void CXRayViewerv10Dlg::OnPaint()
  			Self_ShowPicCtrl();
 			m_BClickTab = FALSE;
  		}
-
+		
 //		CDialogEx::OnPaint();
 	}
 }
@@ -7215,7 +7223,7 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 	tem_strFilePath            += imgname;
 	tem_strFilePath            += m_strFileFormat;
 	
-	if (m_nLastImgType>=0 && m_nLastImgType<4)
+	if (m_nLastImgType>=0 && m_nLastImgType<3)
 	{
 		tem_strLowImg += m_strFileFormat;
 		tem_strNorImg += m_strFileFormat;
@@ -7223,7 +7231,7 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 		tem_strHDRImg += m_strFileFormat;
 		tem_strIntImg += m_strFileFormat;
 	} 
-	else if(m_nLastImgType == 4 || m_nLastImgType == 5)
+	else if(m_nLastImgType == 4 || m_nLastImgType == 5 ||m_nLastImgType == 3)  //3-tif,tif无法合成
 	{
 		tem_strLowImg += _T(".jpg");
 		tem_strNorImg += _T(".jpg");
@@ -7245,8 +7253,14 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 //  		m_conVideoCtrl.SetGain(g_nGrayValue[m_nNorGray][1], 0);
 		//调节逆光对比------------------------------
 // 		m_conVideoCtrl.SetBacklightCom(m_nNorBackLgt, 0);
-		//设置延时----------------------------------
-		Self_TimeDelay(m_nNorDelay*100);
+		//根据当前亮度与目标亮度差设置延时-----------
+		int Scales = 0;
+		Scales = abs(m_nNorLight-m_nLastRelay)/10;
+		if (Scales == 0)
+		{
+			Scales =1;
+		} 
+		Self_TimeDelay(m_nIntervalTime);
 	} 
 	else
 	{
@@ -7257,8 +7271,14 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 // 		m_conVideoCtrl.SetGain(g_nGrayValue[m_nNorGrayL][1], 0);
 		//调节逆光对比------------------------------
 // 		m_conVideoCtrl.SetBacklightCom(m_nNorBackLgtL, 0);
-		//设置延时----------------------------------
-		Self_TimeDelay(m_nNorDelayL*100);
+		//根据当前亮度与目标亮度差设置延时-----------
+		int Scales = 0;
+		Scales = (abs(m_nNorLightL-m_nLastRelay)/10);
+		if (Scales == 0)
+		{
+			Scales =1;
+		} 
+		Self_TimeDelay(m_nIntervalTime);
 	}
 	m_conVideoCtrl.CaptureImage(tem_strNorImg);
 
@@ -7271,8 +7291,14 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 // 		m_conVideoCtrl.SetGain(g_nGrayValue[m_nLowGray][1], 0);
 		//调节逆光对比------------------------------
 // 		m_conVideoCtrl.SetBacklightCom(m_nLowBackLgt, 0);
-		//设置延时----------------------------------
-		Self_TimeDelay(m_nLowDelay*100);
+		//根据当前亮度与目标亮度差设置延时-----------
+		int Scales = 0;
+		Scales = (abs(m_nNorLight-m_nLowLight)/10);
+		if (Scales == 0)
+		{
+			Scales =1;
+		} 
+		Self_TimeDelay(m_nIntervalTime);
 	} 
 	else
 	{
@@ -7283,8 +7309,14 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 // 		m_conVideoCtrl.SetGain(g_nGrayValue[m_nLowGrayL][1], 0);
 		//调节逆光对比------------------------------
 // 		m_conVideoCtrl.SetBacklightCom(m_nLowBackLgtL, 0);
-		//设置延时----------------------------------
-		Self_TimeDelay(m_nLowDelayL*100);
+		//根据当前亮度与目标亮度差设置延时-----------
+		int Scales = 0;
+		Scales = (abs(m_nNorLightL-m_nLowLightL)/10);
+		if (Scales == 0)
+		{
+			Scales =1;
+		} 
+		Self_TimeDelay(m_nIntervalTime);
 	}
 	//拍照-------------------------------------
 	m_conVideoCtrl.CaptureImage(tem_strLowImg);
@@ -7298,8 +7330,14 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 // 		m_conVideoCtrl.SetGain(g_nGrayValue[m_nHigGray][1], 0);
 		//调节逆光对比------------------------------
 // 		m_conVideoCtrl.SetBacklightCom(m_nHigBackLgt, 0);
-		//设置延时----------------------------------
-		Self_TimeDelay(m_nHigDelay*100);
+		//根据当前亮度与目标亮度差设置延时-----------
+		int Scales = 0;
+		Scales = (abs(m_nHigLight-m_nLowLight)/10);
+		if (Scales == 0)
+		{
+			Scales =1;
+		} 
+		Self_TimeDelay(m_nIntervalTime);
 	} 
 	else
 	{
@@ -7310,18 +7348,17 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 // 		m_conVideoCtrl.SetGain(g_nGrayValue[m_nHigGrayL][1], 0);
 		//调节逆光对比------------------------------
 // 		m_conVideoCtrl.SetBacklightCom(m_nHigBackLgtL, 0);
-		//设置延时----------------------------------
-		Self_TimeDelay(m_nHigDelayL*100);
+		//根据当前亮度与目标亮度差设置延时-----------
+		int Scales = 0;
+		Scales = (abs(m_nHigLightL-m_nLowLightL)/10);
+		if (Scales == 0)
+		{
+			Scales =1;
+		} 
+		Self_TimeDelay(m_nIntervalTime);
 	}
 	//拍照-------------------------------------
 	m_conVideoCtrl.CaptureImage(tem_strHigImg);
-
-	//合成图像--------------------------------------------------------------------------
-//	Self_HDRMergeImgs(tem_strHigImg, tem_strNorImg, tem_strLowImg, tem_strHDRImg);
-	Self_HDRMergeImgs3_1(tem_strHigImg, tem_strNorImg, tem_strLowImg, tem_strHDRImg, mode);
-// 	::DeleteFile(tem_strHigImg);
-// 	::DeleteFile(tem_strNorImg);
-// 	::DeleteFile(tem_strLowImg);
 
 	//恢复参数--------------------------------------------------------------------------
 	if (mode == 1)
@@ -7335,10 +7372,33 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 		AdjustRelay(m_nLastRelay, m_nHigLightL);
 	}
 	//恢复灰阶---------------------------------
-// 	m_conVideoCtrl.SetGamma(g_nGrayValue[m_nLastGray][0], 0);
-// 	m_conVideoCtrl.SetGain(g_nGrayValue[m_nLastGray][1], 0);	
+	// 	m_conVideoCtrl.SetGamma(g_nGrayValue[m_nLastGray][0], 0);
+	// 	m_conVideoCtrl.SetGain(g_nGrayValue[m_nLastGray][1], 0);	
 	//恢复逆光对比-----------------------------
-// 	m_conVideoCtrl.SetBacklightCom(m_nLastBackLight, 0);
+	// 	m_conVideoCtrl.SetBacklightCom(m_nLastBackLight, 0);
+
+
+	//合成图像--------------------------------------------------------------------------
+//	Self_HDRMergeImgs(tem_strHigImg, tem_strNorImg, tem_strLowImg, tem_strHDRImg);   //方法一
+//	Self_HDRMergeImgs3_1(tem_strHigImg, tem_strNorImg, tem_strLowImg, tem_strHDRImg, mode);  //方法二
+	Self_HDRMergeImgEx(tem_strLowImg, tem_strNorImg, tem_strHigImg, tem_strHDRImg, mode, m_nLowLightL, m_nNorLightL, m_nHigLightL, m_nLowLight, m_nNorLight, m_nHigLight);
+
+	//等待子程序生成完毕再继续-----------------------------------------------------------
+	BOOL  tem_BComplted = TRUE;
+	while(tem_BComplted)
+	{
+		//查询文件是否存在------------------
+		if(PathFileExists(tem_strHDRImg))
+		{
+			break;
+		}
+
+	}
+	Self_TimeDelay(500);
+	//删除缓存图像----------------------------------------------------------------------
+// 	::DeleteFile(tem_strHigImg);
+// 	::DeleteFile(tem_strNorImg);
+// 	::DeleteFile(tem_strLowImg);
 	
 
 	//是否需要添加水印-------------------------------------------------------------------
@@ -7381,11 +7441,16 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 		 char*   tem_cDst = T2A(tem_strFilePath);
 		 tem_dcm->SaveIMAGEtoDCM(tem_cSrc, tem_cDst);
 	 }
+	 else if (m_nLastImgType == 3)
+	 {
+		 //将jpg图像转为tif图像
+
+	 }
 	 else
 	 {
 		 CopyFile(tem_strHDRImg, tem_strFilePath, FALSE);
 	 }
-	 ::DeleteFile(tem_strHDRImg);
+//	 ::DeleteFile(tem_strHDRImg);
 	
 	 m_vcImgName.push_back(imgname);
 	 m_vcThumbPath.push_back(tem_strThumbPath);
@@ -7394,6 +7459,7 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 
 	 Self_ShowImgInfo(tem_strFilePath);
 	 m_nImageCount++;
+	 MessageBox(_T("Over"));
 }
 
 
@@ -7451,38 +7517,39 @@ void CXRayViewerv10Dlg::Self_HDRMergeImgs(CString higimg, CString norimg, CStrin
 }
 
 
-
 void CXRayViewerv10Dlg::Self_HDRMergeImgs3_1(CString HigImg, CString NorImg, CString LowImg, CString outImg, int mode)
 {
+	
 	/*1、加载图像*/
-	std::vector<Mat> tem_vcMatImgs;
-	CStringA tem_straLowImg(LowImg); string tem_sLowImg = tem_straLowImg.GetBuffer(0); tem_straLowImg.ReleaseBuffer();
-	CStringA tem_straNorImg(NorImg); string tem_sNorImg = tem_straNorImg.GetBuffer(0); tem_straNorImg.ReleaseBuffer();
-	CStringA tem_straHigImg(HigImg); string tem_sHigImg = tem_straHigImg.GetBuffer(0); tem_straHigImg.ReleaseBuffer();
+	std::vector<Mat> images;
+	CStringA straLowImg(LowImg); string tem_sLowImg = straLowImg.GetBuffer(0); straLowImg.ReleaseBuffer();
+	CStringA straNorImg(NorImg); string tem_sNorImg = straNorImg.GetBuffer(0); straNorImg.ReleaseBuffer();
+	CStringA straHigImg(HigImg); string tem_sHigImg = straHigImg.GetBuffer(0); straHigImg.ReleaseBuffer();
 
-	Mat tem_mtInImg = imread(tem_sLowImg); 	tem_vcMatImgs.push_back(tem_mtInImg);
-	tem_mtInImg = imread(tem_sNorImg); 	tem_vcMatImgs.push_back(tem_mtInImg);
-	tem_mtInImg = imread(tem_sHigImg); 	tem_vcMatImgs.push_back(tem_mtInImg);
+	Mat tem_mtLowImg = imread(tem_sLowImg); 	images.push_back(tem_mtLowImg);
+	Mat tem_mtNorImg = imread(tem_sNorImg); 	images.push_back(tem_mtNorImg);
+	Mat tem_mtHigImg = imread(tem_sHigImg); 	images.push_back(tem_mtHigImg);
 
+	tem_mtLowImg.release(); tem_mtNorImg.release(); tem_mtHigImg.release();
 	/*2、估计相机相应*/
 	Mat response;
 	Ptr<CalibrateDebevec> calibrate = createCalibrateDebevec();
 	if (mode == 1)
 	{
 		//高密度
-		calibrate->process(tem_vcMatImgs, response, m_vcHShutter);
+		calibrate->process(images, response, m_vcHShutter);
 	}
 	else
 	{
 		//低密度
-		calibrate->process(tem_vcMatImgs, response, m_vcLShutter);
+		calibrate->process(images, response, m_vcLShutter);
 	}
 
 	/*3、曝光合成*/
-	cv::Size size = tem_vcMatImgs[0].size();
+	cv::Size size = images[0].size();
 	Mat fusion = Mat::zeros(size, CV_32F);
 	Ptr<MergeMertens> merge_mertens = createMergeMertens();
-	merge_mertens->process(tem_vcMatImgs, fusion);
+	merge_mertens->process(images, fusion);
 
 	/*4、图像输出*/
 	Mat tem_mtFusion = fusion*255;
@@ -11329,7 +11396,6 @@ BOOL CXRayViewerv10Dlg::Self_FilterRes(CString res)
 //value目标值，即灯箱预设值，src灯箱原值
 void CXRayViewerv10Dlg::AdjustRelay(int value, int src)
 {
-	
 	int tem_nDeviceHandle;
 	struct usb_relay_device_info *tem_pDeviceList;
 	usb_relay_init();
@@ -11699,4 +11765,107 @@ void CXRayViewerv10Dlg::putTextEx(Mat& dst, const char* str, cv::Point org, Scal
 	DeleteObject(hf);
 	DeleteObject(hBmp);
 	DeleteDC(hDC);
+}
+
+int CXRayViewerv10Dlg::Self_GetIntervalTime(void)
+{
+	/*a、拍摄首张图像*/
+	CString tem_strBegin = m_strThumbDoc;
+	tem_strBegin += _T("\\计算间隔时间.jpg");
+	m_conVideoCtrl.CaptureImage(tem_strBegin);
+	
+
+	/*b、调节灯箱亮度*/
+	AdjustRelay(100, 10);
+	DWORD tem_DBegin = GetTickCount();
+	double tem_dLastGray = 0.0, tem_dNextGray = 5.0, tem_dMidGray=0.0;
+	/*c、拍摄第二幅图像*/
+	CString tem_strLast = m_strThumbDoc;
+	tem_strLast += _T("\\计算间隔时间2.jpg");
+	m_conVideoCtrl.CaptureImage(tem_strLast);
+	tem_dLastGray = Self_GetAvgGray(tem_strLast);
+	CString tem_strNext = m_strThumbDoc;
+	tem_strNext += _T("\\计算间隔时间3.jpg");
+	while(abs(tem_dNextGray-tem_dLastGray)>=5)
+	{
+		/*d、拍摄最后一幅图像*/
+		m_conVideoCtrl.CaptureImage(tem_strNext);
+		tem_dNextGray = Self_GetAvgGray(tem_strNext);
+
+		if (abs(tem_dNextGray-tem_dLastGray)<=5)
+		{
+			break;
+		} 
+		else
+		{
+			tem_dLastGray = tem_dNextGray;
+			tem_dNextGray = 0;
+		}
+	}
+	DWORD tem_DEnd = GetTickCount();
+// 	CString str;
+// 	str.Format(_T("%d"), (tem_DEnd-tem_DBegin));
+// 	MessageBox(str);
+	/*e、求平均时长*/
+	int tem_nAvgTime = (int)(tem_DEnd-tem_DBegin)/9;
+	/*f、删除缓存图像，恢复灯箱亮度*/
+// 	::DeleteFile(tem_strBegin);
+// 	::DeleteFile(tem_strLast);
+// 	::DeleteFile(tem_strNext);
+
+	AdjustRelay(10, 100);
+
+	return tem_nAvgTime;
+}
+
+
+double CXRayViewerv10Dlg::Self_GetAvgGray(CString imgpath)
+{
+	/*1、加载图像*/
+	CStringA tem_straImgPath(imgpath);
+	string tem_sImgPath = tem_straImgPath.GetBuffer(0);
+	tem_straImgPath.ReleaseBuffer();
+	Mat tem_cvImg = imread(tem_sImgPath, IMREAD_GRAYSCALE);
+
+	/*2、像素遍历，获取平均灰度*/
+	double tem_dAvgGray = 0.0;
+	double tem_dSumGray = 0.0;
+	int    tem_nRow     = tem_cvImg.rows;
+	int    tem_nCol     = tem_cvImg.cols*tem_cvImg.channels();
+	for(int i=0; i<tem_nRow; i++)
+	{
+		uchar*  tem_pRow = tem_cvImg.ptr<uchar>(i);
+		for (int j=0; j<tem_nCol; j++)
+		{
+			tem_dSumGray += tem_pRow[j];
+		}
+	}
+
+	tem_dAvgGray = (double)tem_dSumGray/(tem_cvImg.rows*tem_cvImg.cols);
+
+	return tem_dAvgGray;
+}
+
+
+void CXRayViewerv10Dlg::Self_HDRMergeImgEx(CString LowImg, CString NorImg, CString HigImg, CString OutImg, int mode, int lowlight_L, int norlight_L, int higlight_L, int lowlight_H, int norlight_H, int higlight_H)
+{
+	CString tem_strSendInfo = _T("");
+	tem_strSendInfo  = LowImg; tem_strSendInfo += _T("#$");
+	tem_strSendInfo += NorImg; tem_strSendInfo += _T("#$");
+	tem_strSendInfo += HigImg; tem_strSendInfo += _T("#$");
+	tem_strSendInfo += OutImg; tem_strSendInfo += _T("#$");
+	
+	CString tem_strMid = _T("");
+	tem_strMid.Format(_T("%d"), mode); tem_strSendInfo += tem_strMid; tem_strSendInfo += _T("#$");
+
+	tem_strMid.Format(_T("%d"), lowlight_L); tem_strSendInfo += tem_strMid; tem_strSendInfo += _T("#$");
+	tem_strMid.Format(_T("%d"), norlight_L); tem_strSendInfo += tem_strMid; tem_strSendInfo += _T("#$");
+	tem_strMid.Format(_T("%d"), higlight_L); tem_strSendInfo += tem_strMid; tem_strSendInfo += _T("#$");
+
+	tem_strMid.Format(_T("%d"), lowlight_H); tem_strSendInfo += tem_strMid; tem_strSendInfo += _T("#$");
+	tem_strMid.Format(_T("%d"), norlight_H); tem_strSendInfo += tem_strMid; tem_strSendInfo += _T("#$");
+	tem_strMid.Format(_T("%d"), higlight_H); tem_strSendInfo += tem_strMid; 
+
+//	tem_strSendInfo.Format(_T("\"%s\"),tem_strSendInfo);
+	ShellExecute(NULL, _T("open"), _T("UDSGenerateIt.exe"), tem_strSendInfo, NULL, SW_SHOWNORMAL);
 }

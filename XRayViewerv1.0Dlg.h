@@ -42,6 +42,7 @@
 #include "PngButton.h"
 #include "UDSSelectFormat.h"
 #include <iostream>
+#include "Shellapi.h"
 
 
 
@@ -472,4 +473,11 @@ public:
 	std::vector<float> m_vcLShutter;
 	std::vector<float> m_vcHShutter;
 	float Self_GetShutter(int lightvalue);
+	int Self_GetIntervalTime(void);
+
+	//测速
+	int  m_nIntervalTime;        //该时间间隔为调节10格灯箱亮度的时间，单位ms
+	BOOL m_BFirstCap;
+	double Self_GetAvgGray(CString imgpath);
+	void Self_HDRMergeImgEx(CString LowImg, CString NorImg, CString HigImg, CString OutImg, int mode, int lowlight_L, int norlight_L, int higlight_L, int lowlight_H, int norlight_H, int higlight_H);
 };
