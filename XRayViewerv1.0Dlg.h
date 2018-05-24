@@ -470,8 +470,10 @@ public:
 	void Self_HDRMergeImgs3_1(CString HigImg, CString NorImg, CString LowImg, CString outImg, int mode);
 
 	//高密度和低密度拍照
-	std::vector<float> m_vcLShutter;
-	std::vector<float> m_vcHShutter;
+	int                  m_nHdrMergeMode;
+	std::vector<CString> m_vcSomeStrInfo;
+	std::vector<float>   m_vcLShutter;
+	std::vector<float>   m_vcHShutter;
 	float Self_GetShutter(int lightvalue);
 	int Self_GetIntervalTime(void);
 
@@ -480,4 +482,6 @@ public:
 	BOOL m_BFirstCap;
 	double Self_GetAvgGray(CString imgpath);
 	void Self_HDRMergeImgEx(CString LowImg, CString NorImg, CString HigImg, CString OutImg, int mode, int lowlight_L, int norlight_L, int higlight_L, int lowlight_H, int norlight_H, int higlight_H);
+protected:
+	afx_msg LRESULT OnSettext(WPARAM wParam, LPARAM lParam);
 };

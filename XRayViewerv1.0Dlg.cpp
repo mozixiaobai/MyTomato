@@ -123,6 +123,7 @@ ON_BN_CLICKED(IDC_BTN_LAST, &CXRayViewerv10Dlg::OnBnClickedBtnLast)
 ON_MESSAGE(WM_REFRESHIMG, &CXRayViewerv10Dlg::OnRefreshimg)
 ON_BN_CLICKED(IDC_BTN_DRAG, &CXRayViewerv10Dlg::OnBnClickedBtnDrag)
 ON_NOTIFY(TCN_SELCHANGING, IDC_TAB_CTRL, &CXRayViewerv10Dlg::OnSelchangingTabCtrl)
+ON_MESSAGE(WM_SETTEXT, &CXRayViewerv10Dlg::OnSettext)
 END_MESSAGE_MAP()
 
 
@@ -620,9 +621,11 @@ BOOL CXRayViewerv10Dlg::OnInitDialog()
 	}
 
 	/*14、计算快门曲线*/
+	/*移交至子程序处理*/
+	/*
 	float tem_fShutterL, tem_fShutterN, tem_fShutterH;
 
-	/*a、低密度快门*/
+	//a、低密度快门
 	tem_fShutterL = tem_fShutterN = tem_fShutterH = 0.0;
 	tem_fShutterL = Self_GetShutter(m_nLowLightL);
 	tem_fShutterN = Self_GetShutter(m_nNorLightL);
@@ -631,7 +634,7 @@ BOOL CXRayViewerv10Dlg::OnInitDialog()
 	m_vcLShutter.push_back(tem_fShutterN);
 	m_vcLShutter.push_back(tem_fShutterH);
 
-	/*b、高密度快门*/
+	//b、高密度快门
 	tem_fShutterL = tem_fShutterN = tem_fShutterH = 0.0;
 	tem_fShutterL = Self_GetShutter(m_nLowLight);
 	tem_fShutterN = Self_GetShutter(m_nNorLight);
@@ -639,11 +642,11 @@ BOOL CXRayViewerv10Dlg::OnInitDialog()
 	m_vcHShutter.push_back(tem_fShutterL);
 	m_vcHShutter.push_back(tem_fShutterN);
 	m_vcHShutter.push_back(tem_fShutterH);
+	*/
 
 	/*15、计算拍摄时间间隔*/
-	Self_TimeDelay(5*100);  //500ms延时，否则摄像头未准备好，崩溃
-	m_nIntervalTime = Self_GetIntervalTime();
-	m_nIntervalTime = 3000;
+//  	Self_TimeDelay(5*100);  //500ms延时，否则摄像头未准备好，崩溃
+ 	m_nIntervalTime = Self_GetIntervalTime();
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -7193,6 +7196,8 @@ void CXRayViewerv10Dlg::Self_CapatureImg(CString imgname)
 
 void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 {
+	m_dlgOne.Self_HideCtrls(1);
+	m_vcSomeStrInfo.clear();
 	//文件命名---------------------------------------------------------------------------
 	CString    tem_strLowImg    = m_strThumbDoc;      //欠曝图像
 	tem_strLowImg              += _T("\\lbmd");
@@ -7246,39 +7251,45 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 	*/
 	if (mode == 1)
 	{
-		//调节灯箱**********************************
-		AdjustRelay(m_nNorLight, m_nLastRelay);
-		//调节灰阶----------------------------------
+		if (m_nNorLight != m_nLastRelay)
+		{
+			//调节灯箱**********************************
+			AdjustRelay(m_nNorLight, m_nLastRelay);
+			//调节灰阶----------------------------------
 //  		m_conVideoCtrl.SetGamma(g_nGrayValue[m_nNorGray][0], 0);
 //  		m_conVideoCtrl.SetGain(g_nGrayValue[m_nNorGray][1], 0);
-		//调节逆光对比------------------------------
-// 		m_conVideoCtrl.SetBacklightCom(m_nNorBackLgt, 0);
-		//根据当前亮度与目标亮度差设置延时-----------
-		int Scales = 0;
-		Scales = abs(m_nNorLight-m_nLastRelay)/10;
-		if (Scales == 0)
-		{
-			Scales =1;
-		} 
-		Self_TimeDelay(m_nIntervalTime);
+			//调节逆光对比------------------------------
+	// 		m_conVideoCtrl.SetBacklightCom(m_nNorBackLgt, 0);
+			//根据当前亮度与目标亮度差设置延时-----------
+			int Scales = 0;
+			Scales = abs(m_nNorLight-m_nLastRelay)/10;
+			if (Scales == 0)
+			{
+				Scales =1;
+			} 
+			Self_TimeDelay(m_nIntervalTime);
+		}	
 	} 
 	else
 	{
-		//调节灯箱**********************************
-		AdjustRelay(m_nNorLightL, m_nLastRelay);
-		//调节灰阶----------------------------------
-// 		m_conVideoCtrl.SetGamma(g_nGrayValue[m_nNorGrayL][0], 0);
-// 		m_conVideoCtrl.SetGain(g_nGrayValue[m_nNorGrayL][1], 0);
-		//调节逆光对比------------------------------
-// 		m_conVideoCtrl.SetBacklightCom(m_nNorBackLgtL, 0);
-		//根据当前亮度与目标亮度差设置延时-----------
-		int Scales = 0;
-		Scales = (abs(m_nNorLightL-m_nLastRelay)/10);
-		if (Scales == 0)
+		if (m_nNorLightL != m_nLastRelay)
 		{
-			Scales =1;
-		} 
-		Self_TimeDelay(m_nIntervalTime);
+			//调节灯箱**********************************
+			AdjustRelay(m_nNorLightL, m_nLastRelay);
+			//调节灰阶----------------------------------
+	// 		m_conVideoCtrl.SetGamma(g_nGrayValue[m_nNorGrayL][0], 0);
+	// 		m_conVideoCtrl.SetGain(g_nGrayValue[m_nNorGrayL][1], 0);
+			//调节逆光对比------------------------------
+	// 		m_conVideoCtrl.SetBacklightCom(m_nNorBackLgtL, 0);
+			//根据当前亮度与目标亮度差设置延时-----------
+			int Scales = 0;
+			Scales = (abs(m_nNorLightL-m_nLastRelay)/10);
+			if (Scales == 0)
+			{
+				Scales =1;
+			} 
+			Self_TimeDelay(m_nIntervalTime);
+		}
 	}
 	m_conVideoCtrl.CaptureImage(tem_strNorImg);
 
@@ -7377,12 +7388,31 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 	//恢复逆光对比-----------------------------
 	// 	m_conVideoCtrl.SetBacklightCom(m_nLastBackLight, 0);
 
+	Self_HDRMergeImgEx(tem_strLowImg, tem_strNorImg, tem_strHigImg, tem_strHDRImg, mode, m_nLowLightL, m_nNorLightL, m_nHigLightL, m_nLowLight, m_nNorLight, m_nHigLight);
 
+	m_nHdrMergeMode = mode;
+	m_vcSomeStrInfo.push_back(tem_strLowImg);
+	m_vcSomeStrInfo.push_back(tem_strNorImg);
+	m_vcSomeStrInfo.push_back(tem_strHigImg);
+	m_vcSomeStrInfo.push_back(tem_strHDRImg);
+	m_vcSomeStrInfo.push_back(tem_strThumbPath);
+	m_vcSomeStrInfo.push_back(tem_strIntImg);
+	m_vcSomeStrInfo.push_back(tem_strFilePath);
+	m_vcSomeStrInfo.push_back(imgname);
+
+	
+	
+
+	/*将合成图像移至接收到下层返回消息处，在此处合成1、while不断检测文件有系统开销；2、检测的文件的速度快于子程序释放图像速度，没有下面延时可能内存异常*/
+	/*
 	//合成图像--------------------------------------------------------------------------
+	if(PathFileExists(tem_strHDRImg))
+	{
+		::DeleteFile(tem_strHDRImg);
+	}
 //	Self_HDRMergeImgs(tem_strHigImg, tem_strNorImg, tem_strLowImg, tem_strHDRImg);   //方法一
 //	Self_HDRMergeImgs3_1(tem_strHigImg, tem_strNorImg, tem_strLowImg, tem_strHDRImg, mode);  //方法二
 	Self_HDRMergeImgEx(tem_strLowImg, tem_strNorImg, tem_strHigImg, tem_strHDRImg, mode, m_nLowLightL, m_nNorLightL, m_nHigLightL, m_nLowLight, m_nNorLight, m_nHigLight);
-
 	//等待子程序生成完毕再继续-----------------------------------------------------------
 	BOOL  tem_BComplted = TRUE;
 	while(tem_BComplted)
@@ -7394,7 +7424,7 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 		}
 
 	}
-	Self_TimeDelay(500);
+	Self_TimeDelay(300);
 	//删除缓存图像----------------------------------------------------------------------
 // 	::DeleteFile(tem_strHigImg);
 // 	::DeleteFile(tem_strNorImg);
@@ -7444,7 +7474,10 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 	 else if (m_nLastImgType == 3)
 	 {
 		 //将jpg图像转为tif图像
-
+		 CxImage tem_cxJPG;
+		 tem_cxJPG.Load(tem_strHDRImg, CMAX_IMAGE_FORMATS);
+		 tem_cxJPG.SetCodecOption(5, CXIMAGE_FORMAT_TIF);
+		 tem_cxJPG.Save(tem_strFilePath, CXIMAGE_FORMAT_TIF);	 
 	 }
 	 else
 	 {
@@ -7460,6 +7493,7 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 	 Self_ShowImgInfo(tem_strFilePath);
 	 m_nImageCount++;
 	 MessageBox(_T("Over"));
+	 */
 }
 
 
@@ -11767,32 +11801,48 @@ void CXRayViewerv10Dlg::putTextEx(Mat& dst, const char* str, cv::Point org, Scal
 	DeleteDC(hDC);
 }
 
+
 int CXRayViewerv10Dlg::Self_GetIntervalTime(void)
 {
+	int tem_nCapCount = 0;
 	/*a、拍摄首张图像*/
-	CString tem_strBegin = m_strThumbDoc;
-	tem_strBegin += _T("\\计算间隔时间.jpg");
-	m_conVideoCtrl.CaptureImage(tem_strBegin);
+// 	CString tem_strBegin = m_strThumbDoc;
+// 	tem_strBegin += _T("\\计算间隔时间.jpg");
+// 	m_conVideoCtrl.CaptureImage(tem_strBegin);
 	
 
 	/*b、调节灯箱亮度*/
-	AdjustRelay(100, 10);
+	AdjustRelay(50, 10);
 	DWORD tem_DBegin = GetTickCount();
 	double tem_dLastGray = 0.0, tem_dNextGray = 5.0, tem_dMidGray=0.0;
-	/*c、拍摄第二幅图像*/
+	/*c、拍摄第一幅图像*/
 	CString tem_strLast = m_strThumbDoc;
-	tem_strLast += _T("\\计算间隔时间2.jpg");
+	tem_strLast += _T("\\CountTime_1.jpg");
+	
 	m_conVideoCtrl.CaptureImage(tem_strLast);
-	tem_dLastGray = Self_GetAvgGray(tem_strLast);
-	CString tem_strNext = m_strThumbDoc;
-	tem_strNext += _T("\\计算间隔时间3.jpg");
-	while(abs(tem_dNextGray-tem_dLastGray)>=5)
+	if(PathFileExists(tem_strLast))
 	{
-		/*d、拍摄最后一幅图像*/
+		tem_nCapCount++;
+		tem_dLastGray = Self_GetAvgGray(tem_strLast);
+	}
+	
+	while(abs(tem_dNextGray-tem_dLastGray)>=1)
+	{
+		CString tem_strNext = m_strThumbDoc;
+		CString str;
+		str.Format(_T("%d"), tem_nCapCount);
+		tem_strNext += _T("\\CountTime_2_");
+		tem_strNext += str;
+		tem_strNext += _T(".jpg");
+		/*d、拍摄下一幅图像*/
 		m_conVideoCtrl.CaptureImage(tem_strNext);
-		tem_dNextGray = Self_GetAvgGray(tem_strNext);
-
-		if (abs(tem_dNextGray-tem_dLastGray)<=5)
+		if(PathFileExists(tem_strNext))
+		{
+			tem_nCapCount++;
+			tem_dNextGray = Self_GetAvgGray(tem_strNext);
+		}
+		
+		if (abs(tem_dNextGray-tem_dLastGray)<=1)
 		{
 			break;
 		} 
@@ -11807,13 +11857,13 @@ int CXRayViewerv10Dlg::Self_GetIntervalTime(void)
 // 	str.Format(_T("%d"), (tem_DEnd-tem_DBegin));
 // 	MessageBox(str);
 	/*e、求平均时长*/
-	int tem_nAvgTime = (int)(tem_DEnd-tem_DBegin)/9;
+	int tem_nAvgTime = (int)(tem_DEnd-tem_DBegin)/tem_nCapCount;
 	/*f、删除缓存图像，恢复灯箱亮度*/
 // 	::DeleteFile(tem_strBegin);
 // 	::DeleteFile(tem_strLast);
 // 	::DeleteFile(tem_strNext);
 
-	AdjustRelay(10, 100);
+	AdjustRelay(10, 50);
 
 	return tem_nAvgTime;
 }
@@ -11842,6 +11892,7 @@ double CXRayViewerv10Dlg::Self_GetAvgGray(CString imgpath)
 	}
 
 	tem_dAvgGray = (double)tem_dSumGray/(tem_cvImg.rows*tem_cvImg.cols);
+	tem_cvImg.release();
 
 	return tem_dAvgGray;
 }
@@ -11866,6 +11917,95 @@ void CXRayViewerv10Dlg::Self_HDRMergeImgEx(CString LowImg, CString NorImg, CStri
 	tem_strMid.Format(_T("%d"), norlight_H); tem_strSendInfo += tem_strMid; tem_strSendInfo += _T("#$");
 	tem_strMid.Format(_T("%d"), higlight_H); tem_strSendInfo += tem_strMid; 
 
-//	tem_strSendInfo.Format(_T("\"%s\"),tem_strSendInfo);
-	ShellExecute(NULL, _T("open"), _T("UDSGenerateIt.exe"), tem_strSendInfo, NULL, SW_SHOWNORMAL);
+	CString  tem_strAllInfo = _T("\"");
+	tem_strAllInfo += tem_strSendInfo;
+	tem_strAllInfo += _T("\"");
+	ShellExecute(NULL, _T("open"), _T("UDSGenerateIt.exe"), tem_strAllInfo, NULL, SW_SHOWNORMAL);
+}
+
+
+afx_msg LRESULT CXRayViewerv10Dlg::OnSettext(WPARAM wParam, LPARAM lParam)
+{
+	CString tem_strLowImg    = m_vcSomeStrInfo[0];
+	CString tem_strNorImg    = m_vcSomeStrInfo[1];
+	CString tem_strHigImg    = m_vcSomeStrInfo[2];
+	CString tem_strHDRImg    = m_vcSomeStrInfo[3];
+	CString tem_strThumbPath = m_vcSomeStrInfo[4];
+	CString tem_strIntImg    = m_vcSomeStrInfo[5];
+	CString tem_strFilePath  = m_vcSomeStrInfo[6];
+	CString imgname          = m_vcSomeStrInfo[7];
+	
+	//等待子程序生成完毕再继续-----------------------------------------------------------
+	//删除缓存图像----------------------------------------------------------------------
+// 	::DeleteFile(tem_strHigImg);
+// 	::DeleteFile(tem_strNorImg);
+// 	::DeleteFile(tem_strLowImg);
+
+	//是否需要添加水印-------------------------------------------------------------------
+	if (m_nWaterMark == 1)
+	{
+		Self_AddWaterMark(tem_strHDRImg);
+	}
+
+	//创建缩略图------------------------------------------------------------------------
+	Self_CreateThumb(tem_strHDRImg, tem_strThumbPath);
+
+	//是否需要插值----------------------------------------------------------------------
+	if (m_nLastRes==m_nInterpolateReso)
+	{
+		Self_InterPolateImage(tem_strHDRImg, tem_strIntImg, 0);
+		::DeleteFile(tem_strHDRImg);
+		tem_strHDRImg = tem_strIntImg;
+	}
+
+	//判断图像格式----------------------------------------------------------------------
+	if(m_nLastImgType == 4)
+	{
+		Self_GetPdfFromImg(tem_strHDRImg, tem_strFilePath);
+	}
+	else if (m_nLastImgType == 5)
+	{
+		char*  tem_cName  = NULL;
+		char*  tem_cId    = NULL;
+		char*  tem_cBirth = NULL;
+		char*  tem_cSex   = NULL;
+		char*  tem_cDName = NULL;
+		char*  tem_cDate  = NULL;
+		char*  tem_cTime  = NULL;
+
+		IMAGEAndDCM*   tem_dcm = new IMAGEAndDCM;
+		tem_dcm->Set(tem_cName, tem_cId, tem_cBirth, tem_cSex, tem_cDName, tem_cDate, tem_cTime);
+
+		USES_CONVERSION;  
+		char*   tem_cSrc = T2A(tem_strHDRImg);
+		char*   tem_cDst = T2A(tem_strFilePath);
+		tem_dcm->SaveIMAGEtoDCM(tem_cSrc, tem_cDst);
+	}
+	else if (m_nLastImgType == 3)
+	{
+		//将jpg图像转为tif图像
+		CxImage tem_cxJPG;
+		tem_cxJPG.Load(tem_strHDRImg, CMAX_IMAGE_FORMATS);
+		tem_cxJPG.SetCodecOption(5, CXIMAGE_FORMAT_TIF);
+		tem_cxJPG.Save(tem_strFilePath, CXIMAGE_FORMAT_TIF);	 
+	}
+	else
+	{
+		CopyFile(tem_strHDRImg, tem_strFilePath, FALSE);
+	}
+// 	::DeleteFile(tem_strHDRImg);
+	
+	m_vcImgName.push_back(imgname);
+	m_vcThumbPath.push_back(tem_strThumbPath);
+	m_vcFilePath.push_back(tem_strFilePath);
+	ThumbaiList(m_nThumbWidth, m_nThumbHeight);
+
+	Self_ShowImgInfo(tem_strFilePath);
+	m_nImageCount++;
+	m_vcSomeStrInfo.clear();
+
+	m_dlgOne.Self_HideCtrls(0);
+
+	MessageBox(_T("Over"));
+	return 0;
 }

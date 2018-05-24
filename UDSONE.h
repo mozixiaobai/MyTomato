@@ -154,4 +154,8 @@ public:
 	CSliderCtrl m_slidAdjFocus;
 
 	int       m_nFocusValue;       //当前焦点值
+	void Self_HideCtrls(int mode);
+	CProgressCtrl m_conProgress;
+//	CStatic m_staProgress;
+	CString m_staProgress;
 };

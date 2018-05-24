@@ -19,6 +19,7 @@ CUDSONE::CUDSONE(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CUDSONE::IDD, pParent)
 {
 
+	m_staProgress = _T("");
 }
 
 CUDSONE::~CUDSONE()
@@ -46,6 +47,9 @@ void CUDSONE::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BTN_HDRCAP, m_btnHDRCap);
 	DDX_Control(pDX, IDC_BTN_LDRCAP, m_btnLDRCap);
 	DDX_Control(pDX, IDC_SLID_ADFOCUS, m_slidAdjFocus);
+	DDX_Control(pDX, IDC_PROGRESS_HDR, m_conProgress);
+	//  DDX_Control(pDX, IDC_STA_PROGRESS, m_staProgress);
+	DDX_Text(pDX, IDC_STA_PROGRESS, m_staProgress);
 }
 
 
@@ -428,6 +432,14 @@ BOOL CUDSONE::OnInitDialog()
 	m_slidAdjFocus.SetPageSize(1);
 	m_slidAdjFocus.SetPos(m_nFocusValue);
 	//获取当前焦点值，并设置焦点值
+
+	/*11、进度条初始化*/
+	m_conProgress.SetRange(0, 100);
+	m_conProgress.SetPos(0);
+	m_conProgress.ShowWindow(SW_HIDE);
+	m_staProgress = _T("45%");
+	GetDlgItem(IDC_STA_PROGRESS)->ShowWindow(SW_HIDE);
+	UpdateData(FALSE);
 
 
 
@@ -2097,4 +2109,25 @@ void CUDSONE::OnCustomdrawSlidAdfocus(NMHDR *pNMHDR, LRESULT *pResult)
 	::WritePrivateProfileString(_T("BaseSet"), _T("FocusValue"), tem_strCurSel, m_strIniPath);
 
 	*pResult = 0;
+}
+
+
+void CUDSONE::Self_HideCtrls(int mode)
+{
+	if (mode == 1)
+	{
+		GetDlgItem(IDC_BTN_HDRCAP)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_BTN_LDRCAP)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_BTN_SCAN)->ShowWindow(SW_HIDE);
+		m_conProgress.ShowWindow(SW_NORMAL);
+	    GetDlgItem(IDC_STA_PROGRESS)->ShowWindow(SW_NORMAL);
+	}
+	else if (mode == 0)
+	{
+		GetDlgItem(IDC_BTN_HDRCAP)->ShowWindow(SW_NORMAL);
+		GetDlgItem(IDC_BTN_LDRCAP)->ShowWindow(SW_NORMAL);
+		GetDlgItem(IDC_BTN_SCAN)->ShowWindow(SW_NORMAL);
+		m_conProgress.ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_STA_PROGRESS)->ShowWindow(SW_HIDE);
+	}
 }
