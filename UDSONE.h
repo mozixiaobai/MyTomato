@@ -158,4 +158,8 @@ public:
 	CProgressCtrl m_conProgress;
 //	CStatic m_staProgress;
 	CString m_staProgress;
+	afx_msg void OnCustomdrawSlidAcomputer(NMHDR *pNMHDR, LRESULT *pResult);
+	CSliderCtrl m_slidComputer;
+	int         m_nComputer;      //电脑性能指标
+	afx_msg void OnClickedChkComputer();
 };

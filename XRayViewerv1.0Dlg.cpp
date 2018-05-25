@@ -409,6 +409,44 @@ BOOL CXRayViewerv10Dlg::OnInitDialog()
 	}
 	g_vcRes.push_back(_T("4480×3360"));
 
+	if (m_nLastRes == m_nInterpolateReso)
+	{
+	 	//获取最大分辨率索引，并设置为最大分辨率
+	 	int  tem_nMaxIndex = Self_GetSpyRes(1);
+	 	m_conVideoCtrl.SetResolution(tem_nMaxIndex);
+	}
+	else
+	{
+	 	//设置为上次使用的分辨率
+	 	m_conVideoCtrl.SetResolution(m_nLastRes);
+	}
+
+	switch (m_nLastPreRotate)
+	{
+	case 0:
+		break;
+	case 1:
+		m_conVideoCtrl.RotatedVideo(1);
+		break;
+	case 2:
+		m_conVideoCtrl.RotatedVideo(2);
+		break;
+	case 3:
+		m_conVideoCtrl.RotatedVideo(3);
+		break;
+	default:
+		break;
+	}
+
+	//默认灰度拍照
+	m_conVideoCtrl.SetColorMode(2);
+
+	//	m_conVideoCtrl.AdjuestImageCrop(TRUE);    //设置自动裁切
+	//	m_conVideoCtrl.ManualImageCrop(TRUE);     //设置手动裁切
+
+
+	//说明：将固定裁切框的设置放在摄像头初始化完成的事件中
+
 
 	/*6、确定Camera属性*/
 	if (!PathFileExists(g_strProXmlPath))
@@ -448,46 +486,6 @@ BOOL CXRayViewerv10Dlg::OnInitDialog()
 		Self_ReadXml(g_strDocXmlPath);
 	}
 
-	
-// 	if (m_nLastRes == m_nInterpolateReso)
-// 	{
-// 		//获取最大分辨率索引，并设置为最大分辨率
-// 		int  tem_nMaxIndex = Self_GetSpyRes(1);
-// 		m_conVideoCtrl.SetResolution(tem_nMaxIndex);
-// 	}
-// 	else
-// 	{
-// 		//设置为上次使用的分辨率
-// 		m_conVideoCtrl.SetResolution(m_nLastRes);
-// 	}
-	
-	switch (m_nLastPreRotate)
-	{
-	case 0:
-		break;
-	case 1:
-		m_conVideoCtrl.RotatedVideo(1);
-		break;
-	case 2:
-		m_conVideoCtrl.RotatedVideo(2);
-		break;
-	case 3:
-		m_conVideoCtrl.RotatedVideo(3);
-		break;
-	default:
-		break;
-	}
-
-	//默认灰度拍照
-	m_conVideoCtrl.SetColorMode(2);
-	
-	//	m_conVideoCtrl.AdjuestImageCrop(TRUE);    //设置自动裁切
-	//	m_conVideoCtrl.ManualImageCrop(TRUE);     //设置手动裁切
-
-
-	//说明：将固定裁切框的设置放在摄像头初始化完成的事件中
-
-	
 
 	/*8、Tab Ctrl*/
 	m_conTab.InsertItem(0, m_vcMainLang[0]);
@@ -646,7 +644,15 @@ BOOL CXRayViewerv10Dlg::OnInitDialog()
 
 	/*15、计算拍摄时间间隔*/
 //  	Self_TimeDelay(5*100);  //500ms延时，否则摄像头未准备好，崩溃
- 	m_nIntervalTime = Self_GetIntervalTime();
+	if (m_nIniTime == 0)
+	{
+		m_nIntervalTime = Self_GetIntervalTime();
+	} 
+	else
+	{
+		m_nIntervalTime = (21-m_nIniTime)*1000;
+	}
+ 	
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -1265,17 +1271,32 @@ void CXRayViewerv10Dlg::Self_ReadIni(CString inipath)
 	m_strLastTem = tem_strRead;
 	tem_strRead.ReleaseBuffer();
 
-	/*分辨率和图像类型移至参数模板
 	::GetPrivateProfileString(_T("BaseSet"), _T("ResIndex"), _T("没有找到ResIndex信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, tem_strIniPath);
 	tem_nRead = _ttoi(tem_strRead);
-	m_nLastRes = tem_nRead;
+	switch(tem_nRead)
+	{
+	case 0:
+		m_nLastRes = 6;
+		break;
+	case 1:
+		m_nLastRes = 7;
+		break;
+	case 2:
+		m_nLastRes = 8;
+		break;
+	case 3:
+		m_nLastRes = 9;
+		break;
+	default:
+		m_nLastRes = 8;
+		break;
+	}
 	tem_strRead.ReleaseBuffer();
 
 	::GetPrivateProfileString(_T("BaseSet"), _T("ImgType"), _T("没有找到ImgType信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, tem_strIniPath);
 	tem_nRead = _ttoi(tem_strRead);
 	m_nLastImgType = tem_nRead;
 	tem_strRead.ReleaseBuffer();
-	*/
 
 
 	::GetPrivateProfileString(_T("BaseSet"), _T("PreRotate"), _T("没有找到PreRotate信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, tem_strIniPath);
@@ -1399,12 +1420,17 @@ void CXRayViewerv10Dlg::Self_ReadIni(CString inipath)
 
 	::GetPrivateProfileString(_T("BaseSet"), _T("VidoeMode"), _T("没有找到VidoeMode信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
 	tem_nRead     = _ttoi(tem_strRead);
-	m_nVidoeMode= tem_nRead;
+	m_nVidoeMode  = tem_nRead;
 	tem_strRead.ReleaseBuffer();	
 
 	::GetPrivateProfileString(_T("BaseSet"), _T("FocusValue"), _T("没有找到FocusValue信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
 	tem_nRead     = _ttoi(tem_strRead);
-	m_nFocusValue= tem_nRead;
+	m_nFocusValue = tem_nRead;
+	tem_strRead.ReleaseBuffer();	
+
+	::GetPrivateProfileString(_T("BaseSet"), _T("Computer=0"), _T("没有找到Computer=0信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
+	tem_nRead     = _ttoi(tem_strRead);
+	m_nIniTime    = tem_nRead;
 	tem_strRead.ReleaseBuffer();	
 }
 
@@ -1921,6 +1947,27 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		{
 			camSetFocusValue(m_nDevIndex, tem_nInfo);
 			m_nFocusValue = tem_nInfo;
+		}
+		break;
+	case 33:
+		if (tem_nInfo != m_nIniTime)
+		{
+			m_nIntervalTime = (21-tem_nInfo)*1000;
+			m_nIniTime = tem_nInfo;
+		}
+		
+		break;
+	case 34:
+		if (tem_nInfo == 0)
+		{
+			//自动设置获取平均时间
+			m_nIntervalTime = Self_GetIntervalTime();
+		}
+		else
+		{
+			//默认时间设置为2秒
+			m_nIntervalTime = (21-tem_nInfo)*1000;
+			m_nIniTime = tem_nInfo;
 		}
 		break;
 	default:
@@ -6433,6 +6480,7 @@ void CXRayViewerv10Dlg::Self_ReadXml(CString xmlpath)
 	tem_cInfo = tem_xmlChildElt->Value();
 	tem_xmlChildAtb= tem_xmlChildElt->FirstAttribute();
 	tem_nMark = tem_xmlChildAtb->IntValue();
+	/*
 	if (tem_nMark==1)
 	{
 		tem_xmlChildAtb = tem_xmlChildAtb->Next();
@@ -6473,18 +6521,19 @@ void CXRayViewerv10Dlg::Self_ReadXml(CString xmlpath)
 //		m_conVideoCtrl.SetResolution(m_nLastRes);
 		m_conVideoCtrl.SetResolutionPro(m_nLastRes, m_nVidoeMode);
 	}
-
+	*/
 	//设置分辨率后所有的设置重置一遍，应先设分辨率
 	m_conVideoCtrl.SetGamma(g_nGrayValue[m_nLastGray][0], 0);     
 	m_conVideoCtrl.SetGain(g_nGrayValue[m_nLastGray][1], 0);
 	m_conVideoCtrl.SetBacklightCom(m_nLastBackLight, 0);
-
+	
 
 	//图像格式
 	tem_xmlChildElt = tem_xmlChildElt->NextSiblingElement();
 	tem_cInfo = tem_xmlChildElt->Value();
 	tem_xmlChildAtb= tem_xmlChildElt->FirstAttribute();
 	tem_nMark = tem_xmlChildAtb->IntValue();
+	/*
 	if (tem_nMark==1)
 	{
 		tem_xmlChildAtb = tem_xmlChildAtb->Next();
@@ -6494,6 +6543,7 @@ void CXRayViewerv10Dlg::Self_ReadXml(CString xmlpath)
 		tem_nSetValue   = tem_xmlChildAtb->IntValue();
 		m_nLastImgType  = tem_nSetValue;
 	}
+	*/
 
 	//包围曝光——逆光对比
 	tem_xmlChildElt = tem_xmlChildElt->NextSiblingElement();
@@ -7198,6 +7248,7 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 {
 	m_dlgOne.Self_HideCtrls(1);
 	m_vcSomeStrInfo.clear();
+	
 	//文件命名---------------------------------------------------------------------------
 	CString    tem_strLowImg    = m_strThumbDoc;      //欠曝图像
 	tem_strLowImg              += _T("\\lbmd");
@@ -7244,11 +7295,13 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 		tem_strHDRImg += _T(".jpg");
 		tem_strIntImg += _T(".jpg");
 	}
+	
 	/*
 	*     说明
 	*   由于不同拍照间不需要再设置不同灰阶和逆光对比，因此将这两项设置注释，以提升效率
 	*
 	*/
+	
 	if (mode == 1)
 	{
 		if (m_nNorLight != m_nLastRelay)
@@ -7261,12 +7314,6 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 			//调节逆光对比------------------------------
 	// 		m_conVideoCtrl.SetBacklightCom(m_nNorBackLgt, 0);
 			//根据当前亮度与目标亮度差设置延时-----------
-			int Scales = 0;
-			Scales = abs(m_nNorLight-m_nLastRelay)/10;
-			if (Scales == 0)
-			{
-				Scales =1;
-			} 
 			Self_TimeDelay(m_nIntervalTime);
 		}	
 	} 
@@ -7282,17 +7329,13 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 			//调节逆光对比------------------------------
 	// 		m_conVideoCtrl.SetBacklightCom(m_nNorBackLgtL, 0);
 			//根据当前亮度与目标亮度差设置延时-----------
-			int Scales = 0;
-			Scales = (abs(m_nNorLightL-m_nLastRelay)/10);
-			if (Scales == 0)
-			{
-				Scales =1;
-			} 
 			Self_TimeDelay(m_nIntervalTime);
 		}
 	}
 	m_conVideoCtrl.CaptureImage(tem_strNorImg);
-
+	
+	m_dlgOne.Self_HideCtrls(2);
+	
 	if (mode == 1)
 	{
 		//调节灯箱**********************************
@@ -7303,12 +7346,6 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 		//调节逆光对比------------------------------
 // 		m_conVideoCtrl.SetBacklightCom(m_nLowBackLgt, 0);
 		//根据当前亮度与目标亮度差设置延时-----------
-		int Scales = 0;
-		Scales = (abs(m_nNorLight-m_nLowLight)/10);
-		if (Scales == 0)
-		{
-			Scales =1;
-		} 
 		Self_TimeDelay(m_nIntervalTime);
 	} 
 	else
@@ -7321,16 +7358,11 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 		//调节逆光对比------------------------------
 // 		m_conVideoCtrl.SetBacklightCom(m_nLowBackLgtL, 0);
 		//根据当前亮度与目标亮度差设置延时-----------
-		int Scales = 0;
-		Scales = (abs(m_nNorLightL-m_nLowLightL)/10);
-		if (Scales == 0)
-		{
-			Scales =1;
-		} 
 		Self_TimeDelay(m_nIntervalTime);
 	}
 	//拍照-------------------------------------
 	m_conVideoCtrl.CaptureImage(tem_strLowImg);
+	m_dlgOne.Self_HideCtrls(3);
 
 	if (mode == 1)
 	{
@@ -7342,12 +7374,6 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 		//调节逆光对比------------------------------
 // 		m_conVideoCtrl.SetBacklightCom(m_nHigBackLgt, 0);
 		//根据当前亮度与目标亮度差设置延时-----------
-		int Scales = 0;
-		Scales = (abs(m_nHigLight-m_nLowLight)/10);
-		if (Scales == 0)
-		{
-			Scales =1;
-		} 
 		Self_TimeDelay(m_nIntervalTime);
 	} 
 	else
@@ -7360,16 +7386,11 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 		//调节逆光对比------------------------------
 // 		m_conVideoCtrl.SetBacklightCom(m_nHigBackLgtL, 0);
 		//根据当前亮度与目标亮度差设置延时-----------
-		int Scales = 0;
-		Scales = (abs(m_nHigLightL-m_nLowLightL)/10);
-		if (Scales == 0)
-		{
-			Scales =1;
-		} 
 		Self_TimeDelay(m_nIntervalTime);
 	}
 	//拍照-------------------------------------
 	m_conVideoCtrl.CaptureImage(tem_strHigImg);
+	m_dlgOne.Self_HideCtrls(4);
 
 	//恢复参数--------------------------------------------------------------------------
 	if (mode == 1)
@@ -7389,6 +7410,7 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 	// 	m_conVideoCtrl.SetBacklightCom(m_nLastBackLight, 0);
 
 	Self_HDRMergeImgEx(tem_strLowImg, tem_strNorImg, tem_strHigImg, tem_strHDRImg, mode, m_nLowLightL, m_nNorLightL, m_nHigLightL, m_nLowLight, m_nNorLight, m_nHigLight);
+	m_dlgOne.Self_HideCtrls(5);
 
 	m_nHdrMergeMode = mode;
 	m_vcSomeStrInfo.push_back(tem_strLowImg);
@@ -11804,6 +11826,10 @@ void CXRayViewerv10Dlg::putTextEx(Mat& dst, const char* str, cv::Point org, Scal
 
 int CXRayViewerv10Dlg::Self_GetIntervalTime(void)
 {
+	//预览模式
+	m_conVideoCtrl.ManualImageCrop(FALSE);
+	m_conVideoCtrl.AdjuestImageCrop(FALSE);
+
 	int tem_nCapCount = 0;
 	/*a、拍摄首张图像*/
 // 	CString tem_strBegin = m_strThumbDoc;
@@ -11857,13 +11883,24 @@ int CXRayViewerv10Dlg::Self_GetIntervalTime(void)
 // 	str.Format(_T("%d"), (tem_DEnd-tem_DBegin));
 // 	MessageBox(str);
 	/*e、求平均时长*/
-	int tem_nAvgTime = (int)(tem_DEnd-tem_DBegin)/tem_nCapCount;
+	int tem_nAvgTime = 2000;
+	if (tem_nCapCount!=0)
+	{
+		tem_nAvgTime = (int)(tem_DEnd-tem_DBegin)/tem_nCapCount;
+	}
+	
 	/*f、删除缓存图像，恢复灯箱亮度*/
 // 	::DeleteFile(tem_strBegin);
 // 	::DeleteFile(tem_strLast);
 // 	::DeleteFile(tem_strNext);
 
 	AdjustRelay(10, 50);
+
+	//固定区域
+	m_conVideoCtrl.ManualImageCrop(TRUE);
+	m_conVideoCtrl.SetMessage(1);
+	m_conVideoCtrl.SetRectValue(m_lLeftSite, m_lTopSite, m_lRightSite, m_lBottomSite);
+	m_conVideoCtrl.SetMessage(0);
 
 	return tem_nAvgTime;
 }
@@ -11926,6 +11963,12 @@ void CXRayViewerv10Dlg::Self_HDRMergeImgEx(CString LowImg, CString NorImg, CStri
 
 afx_msg LRESULT CXRayViewerv10Dlg::OnSettext(WPARAM wParam, LPARAM lParam)
 {
+	CString tem_strInfo = _T("");
+	::GetPrivateProfileString(_T("BaseSet"), _T("TalkCode"), _T("没有找到TalkCode信息"), tem_strInfo.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
+
+	if (tem_strInfo == _T("3"))
+	{
+	
 	CString tem_strLowImg    = m_vcSomeStrInfo[0];
 	CString tem_strNorImg    = m_vcSomeStrInfo[1];
 	CString tem_strHigImg    = m_vcSomeStrInfo[2];
@@ -11935,6 +11978,7 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnSettext(WPARAM wParam, LPARAM lParam)
 	CString tem_strFilePath  = m_vcSomeStrInfo[6];
 	CString imgname          = m_vcSomeStrInfo[7];
 	
+	m_dlgOne.Self_HideCtrls(8);
 	//等待子程序生成完毕再继续-----------------------------------------------------------
 	//删除缓存图像----------------------------------------------------------------------
 // 	::DeleteFile(tem_strHigImg);
@@ -11945,10 +11989,12 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnSettext(WPARAM wParam, LPARAM lParam)
 	if (m_nWaterMark == 1)
 	{
 		Self_AddWaterMark(tem_strHDRImg);
+		m_dlgOne.Self_HideCtrls(9);
 	}
 
 	//创建缩略图------------------------------------------------------------------------
 	Self_CreateThumb(tem_strHDRImg, tem_strThumbPath);
+	m_dlgOne.Self_HideCtrls(10);
 
 	//是否需要插值----------------------------------------------------------------------
 	if (m_nLastRes==m_nInterpolateReso)
@@ -11999,13 +12045,23 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnSettext(WPARAM wParam, LPARAM lParam)
 	m_vcThumbPath.push_back(tem_strThumbPath);
 	m_vcFilePath.push_back(tem_strFilePath);
 	ThumbaiList(m_nThumbWidth, m_nThumbHeight);
+	m_dlgOne.Self_HideCtrls(11);
 
 	Self_ShowImgInfo(tem_strFilePath);
 	m_nImageCount++;
 	m_vcSomeStrInfo.clear();
 
 	m_dlgOne.Self_HideCtrls(0);
-
-	MessageBox(_T("Over"));
+	}
+	else if (tem_strInfo == _T("1"))
+	{
+		m_dlgOne.Self_HideCtrls(6);
+	}
+	else if (tem_strInfo == _T("2"))
+	{
+		m_dlgOne.Self_HideCtrls(7);
+	}
+	::WritePrivateProfileString(_T("BaseSet"), _T("TalkCode"), _T("0"), m_strIniPath);
+//	MessageBox(_T("Over"));
 	return 0;
 }

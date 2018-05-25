@@ -479,6 +479,7 @@ public:
 
 	//测速
 	int  m_nIntervalTime;        //该时间间隔为调节10格灯箱亮度的时间，单位ms
+	int  m_nIniTime;             //配置文件中包含的间隔时间，该间隔时间包括自动设置
 	BOOL m_BFirstCap;
 	double Self_GetAvgGray(CString imgpath);
 	void Self_HDRMergeImgEx(CString LowImg, CString NorImg, CString HigImg, CString OutImg, int mode, int lowlight_L, int norlight_L, int higlight_L, int lowlight_H, int norlight_H, int higlight_H);

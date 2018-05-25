@@ -50,6 +50,7 @@ void CUDSONE::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PROGRESS_HDR, m_conProgress);
 	//  DDX_Control(pDX, IDC_STA_PROGRESS, m_staProgress);
 	DDX_Text(pDX, IDC_STA_PROGRESS, m_staProgress);
+	DDX_Control(pDX, IDC_SLID_ACOMPUTER, m_slidComputer);
 }
 
 
@@ -95,6 +96,8 @@ BEGIN_MESSAGE_MAP(CUDSONE, CDialogEx)
 	ON_BN_CLICKED(IDC_CHK_AREFLCTTEM, &CUDSONE::OnClickedChkAreflcttem)
 	ON_BN_CLICKED(IDC_BTN_LDRCAP, &CUDSONE::OnBnClickedBtnLdrcap)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLID_ADFOCUS, &CUDSONE::OnCustomdrawSlidAdfocus)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLID_ACOMPUTER, &CUDSONE::OnCustomdrawSlidAcomputer)
+	ON_BN_CLICKED(IDC_CHK_COMPUTER, &CUDSONE::OnClickedChkComputer)
 END_MESSAGE_MAP()
 
 
@@ -389,9 +392,9 @@ BOOL CUDSONE::OnInitDialog()
 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_NAME), m_vcTab1Lge[21]);
 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_REDUCE), m_vcTab1Lge[18]);
 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_DEFAULT), m_vcTab1Lge[17]);
-	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_SCANHDR), _T("包围曝光"));
-	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_HDRCAP), _T("高密度拍摄"));
-	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_LDRCAP), _T("低密度拍摄"));
+// 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_SCANHDR), _T("包围曝光"));
+// 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_HDRCAP), _T("高密度拍摄"));
+// 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_LDRCAP), _T("低密度拍摄"));
 
 	m_tipInfo.SetDelayTime(TTDT_INITIAL, 100);
 	m_tipInfo.SetDelayTime(TTDT_AUTOPOP, 5000);
@@ -437,10 +440,36 @@ BOOL CUDSONE::OnInitDialog()
 	m_conProgress.SetRange(0, 100);
 	m_conProgress.SetPos(0);
 	m_conProgress.ShowWindow(SW_HIDE);
-	m_staProgress = _T("45%");
-	GetDlgItem(IDC_STA_PROGRESS)->ShowWindow(SW_HIDE);
+	m_staProgress = _T("0%");
 	UpdateData(FALSE);
+	GetDlgItem(IDC_STA_PROGRESS)->ShowWindow(SW_HIDE);
 
+	/*12、电脑性能初始化*/
+	m_slidComputer.SetRange(1, 20, TRUE);
+	if (m_nComputer == 0)
+	{
+		//先将区域设置为全区
+
+		m_slidComputer.SetPos(10);
+		m_slidComputer.SetPageSize(1);
+		((CButton*)GetDlgItem(IDC_CHK_COMPUTER))->SetCheck(TRUE);
+		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(FALSE);
+
+		//再将区域恢复为固定
+
+	} 
+	else
+	{
+		m_slidComputer.SetPos(m_nComputer);
+		m_slidComputer.SetPageSize(1);
+		((CButton*)GetDlgItem(IDC_CHK_COMPUTER))->SetCheck(FALSE);
+		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(TRUE);
+	}
+	
+
+	
+	
+	
 
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -482,7 +511,8 @@ HBRUSH CUDSONE::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		pWnd->GetDlgCtrlID()==IDC_STA_AGETRECT/* || pWnd->GetDlgCtrlID()==IDC_STA_AUTOCROP*/ || pWnd->GetDlgCtrlID()==IDC_STA_ASAVE ||
 		pWnd->GetDlgCtrlID()==IDC_STA_ADFOCUS || pWnd->GetDlgCtrlID()==IDC_STA_ADFOCUSV || /*pWnd->GetDlgCtrlID()==IDC_STA_TRANS ||*/
 		pWnd->GetDlgCtrlID()==IDC_STA_AUTO || pWnd->GetDlgCtrlID()==IDC_STA_HDR ||
-		pWnd->GetDlgCtrlID()==IDC_STA_ATRANSTEM || pWnd->GetDlgCtrlID()==IDC_STA_AREFLCTTEM)
+		pWnd->GetDlgCtrlID()==IDC_STA_ATRANSTEM || pWnd->GetDlgCtrlID()==IDC_STA_AREFLCTTEM ||
+		pWnd->GetDlgCtrlID()==IDC_STA_PROGRESS)
 	{
 		hbr = (HBRUSH)GetStockObject(NULL_BRUSH);
 		pDC->SetBkMode(TRANSPARENT);
@@ -583,7 +613,7 @@ void CUDSONE::Self_ReadIni(CString inipath)
 	tem_strRead.ReleaseBuffer();
 
 
-	/*
+	
 	::GetPrivateProfileString(_T("BaseSet"), _T("ResIndex"), _T("没有找到ResIndex信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, tem_strIniPath);
 	tem_nRead = _ttoi(tem_strRead);
 	m_nLastRes = tem_nRead;
@@ -593,7 +623,7 @@ void CUDSONE::Self_ReadIni(CString inipath)
 	tem_nRead = _ttoi(tem_strRead);
 	m_nLastImgType = tem_nRead;
 	tem_strRead.ReleaseBuffer();
-	*/
+	
 
 
 	::GetPrivateProfileString(_T("BaseSet"), _T("PreRotate"), _T("没有找到PreRotate信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, tem_strIniPath);
@@ -643,6 +673,11 @@ void CUDSONE::Self_ReadIni(CString inipath)
 	::GetPrivateProfileString(_T("BaseSet"), _T("FocusValue"), _T("没有找到FocusValue信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, tem_strIniPath);
 	tem_nRead     = _ttoi(tem_strRead);
 	m_nFocusValue = tem_nRead;
+	tem_strRead.ReleaseBuffer();
+	
+	::GetPrivateProfileString(_T("BaseSet"), _T("Computer"), _T("没有找到Computer信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, tem_strIniPath);
+	tem_nRead     = _ttoi(tem_strRead);
+	m_nComputer = tem_nRead;
 	tem_strRead.ReleaseBuffer();
 }
 
@@ -881,7 +916,7 @@ void CUDSONE::Self_SetSlider(CString xmlpath)
 	tem_nAuto = tem_xmlChildAtb->IntValue();
 	tem_xmlChildAtb= tem_xmlChildAtb->Next();
 	tem_nSetValue  = tem_xmlChildAtb->IntValue();
-	m_nLastRes     = tem_nSetValue;
+//	m_nLastRes     = tem_nSetValue;
 
 	//图像格式
 	tem_xmlChildElt = tem_xmlChildElt->NextSiblingElement();
@@ -891,7 +926,7 @@ void CUDSONE::Self_SetSlider(CString xmlpath)
 	tem_nAuto = tem_xmlChildAtb->IntValue();
 	tem_xmlChildAtb= tem_xmlChildAtb->Next();
 	tem_nSetValue  = tem_xmlChildAtb->IntValue();
-	m_nLastImgType  = tem_nSetValue;
+//	m_nLastImgType  = tem_nSetValue;
 	
 
 	// 	if (tem_nAuto==1)
@@ -2120,7 +2155,8 @@ void CUDSONE::Self_HideCtrls(int mode)
 		GetDlgItem(IDC_BTN_LDRCAP)->ShowWindow(SW_HIDE);
 		GetDlgItem(IDC_BTN_SCAN)->ShowWindow(SW_HIDE);
 		m_conProgress.ShowWindow(SW_NORMAL);
-	    GetDlgItem(IDC_STA_PROGRESS)->ShowWindow(SW_NORMAL);
+		GetDlgItem(IDC_STA_PROGRESS)->ShowWindow(SW_NORMAL);
+		
 	}
 	else if (mode == 0)
 	{
@@ -2129,5 +2165,110 @@ void CUDSONE::Self_HideCtrls(int mode)
 		GetDlgItem(IDC_BTN_SCAN)->ShowWindow(SW_NORMAL);
 		m_conProgress.ShowWindow(SW_HIDE);
 		GetDlgItem(IDC_STA_PROGRESS)->ShowWindow(SW_HIDE);
+	}
+	else if (mode == 2)
+	{
+		m_conProgress.SetPos(10);
+		m_staProgress = _T("10%");
+		UpdateData(FALSE);
+	}
+	else if (mode == 3)
+	{
+		m_conProgress.SetPos(20);
+		m_staProgress = _T("20%");
+		UpdateData(FALSE);
+	}
+	else if (mode == 4)
+	{
+		m_conProgress.SetPos(30);
+		m_staProgress = _T("30%");
+		UpdateData(FALSE);
+	}
+	else if (mode == 5)
+	{
+		m_conProgress.SetPos(35);
+		m_staProgress = _T("35%");
+		UpdateData(FALSE);
+	}
+	else if (mode == 6)
+	{
+		m_conProgress.SetPos(40);
+		m_staProgress = _T("40%");
+		UpdateData(FALSE);
+	}
+	else if (mode == 7)
+	{
+		m_conProgress.SetPos(70);
+		m_staProgress = _T("70%");
+		UpdateData(FALSE);
+	}
+	else if (mode == 8)
+	{
+		m_conProgress.SetPos(90);
+		m_staProgress = _T("90%");
+		UpdateData(FALSE);
+	}
+	else if (mode == 9)
+	{
+		m_conProgress.SetPos(85);
+		m_staProgress = _T("85%");
+		UpdateData(FALSE);
+	}
+	else if (mode == 10)
+	{
+		m_conProgress.SetPos(90);
+		m_staProgress = _T("90%");
+		UpdateData(FALSE);
+	}
+	else if (mode == 11)
+	{
+		m_conProgress.SetPos(100);
+		m_staProgress = _T("100%");
+		UpdateData(FALSE);
+	}
+	CRect  tem_rcRect;; 
+	GetDlgItem(IDC_STA_PROGRESS)->GetWindowRect(&tem_rcRect); 
+	ScreenToClient(&tem_rcRect); 
+	InvalidateRect(&tem_rcRect);
+	
+}
+
+
+void CUDSONE::OnCustomdrawSlidAcomputer(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	if (BST_CHECKED != IsDlgButtonChecked(IDC_CHK_COMPUTER))
+	{
+		m_nComputer = m_slidComputer.GetPos();
+		CString tem_strInfo = _T("");
+		tem_strInfo.Format(_T("%d"), m_nComputer);
+		::WritePrivateProfileString(_T("BaseSet"), _T("Computer"), tem_strInfo, m_strIniPath);
+
+		::SendMessage(m_hParentWnd, WM_SCANSET, 33, m_nComputer);
+	}
+	
+	*pResult = 0;
+}
+
+
+void CUDSONE::OnClickedChkComputer()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (BST_CHECKED == IsDlgButtonChecked(IDC_CHK_COMPUTER))
+	{
+		//自动获取
+		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(FALSE);
+		::WritePrivateProfileString(_T("BaseSet"), _T("Computer"), _T("0"), m_strIniPath);
+		::SendMessage(m_hParentWnd, WM_SCANSET, 34, 0);
+
+	} 
+	else
+	{
+		//手动设置
+		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(TRUE);
+		m_slidComputer.SetPos(19);
+		::WritePrivateProfileString(_T("BaseSet"), _T("Computer"), _T("19"), m_strIniPath);
+		::SendMessage(m_hParentWnd, WM_SCANSET, 34, 19);
 	}
 }
