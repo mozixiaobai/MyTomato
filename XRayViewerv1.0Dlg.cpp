@@ -1798,6 +1798,7 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		m_conVideoCtrl.ManualImageCrop(TRUE); 
 		m_conVideoCtrl.SetRectValue(m_lLeftSite, m_lTopSite, m_lRightSite, m_lBottomSite);
 		m_conVideoCtrl.SetMessage(0);
+		m_BDOC = FALSE;
 
 //		m_dlgTwo.Self_UpdateSlider(7);
 		break;
@@ -1835,6 +1836,7 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		m_nViewMode = 3;
 		m_conVideoCtrl.ManualImageCrop(FALSE); 
 		m_conVideoCtrl.AdjuestImageCrop(TRUE);
+		m_BDOC = TRUE;
 
 //		m_dlgTwo.Self_UpdateSlider(6);
 		break;
@@ -1933,6 +1935,7 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 			m_dlgOne.Self_ResetUI(g_strProXmlPath);
 			m_dlgOne.Self_SetSlider(g_strProXmlPath);
 			m_nLastTemplate = tem_nItem;
+			m_BDOC = FALSE;
 		}
 		else
 		{
@@ -1940,6 +1943,7 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 			m_dlgOne.Self_ResetUI(g_strDocXmlPath);
 			m_dlgOne.Self_SetSlider(g_strDocXmlPath);
 			m_nLastTemplate = tem_nItem;
+			m_BDOC = TRUE;
 		}
 		break;
 	case 32:
@@ -9369,8 +9373,10 @@ void CXRayViewerv10Dlg::Self_FullScreen(void)
 	GetDlgItem(IDC_TAB_CTRL)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_LIST_IMAGE)->ShowWindow(SW_HIDE);
  	GetDlgItem(IDC_BTN_FULLSCREEN)->EnableWindow(FALSE);
-// 	GetDlgItem(IDC_BTN_LAST)->EnableWindow(FALSE);
-// 	GetDlgItem(IDC_BTN_NEXT)->EnableWindow(FALSE);	
+
+	//全屏时设置为预览模式
+	m_conVideoCtrl.ManualImageCrop(FALSE);
+	m_conVideoCtrl.AdjuestImageCrop(FALSE);
 }
 
 
@@ -9392,6 +9398,21 @@ void CXRayViewerv10Dlg::Self_NormalScreen(void)
 	CRect rcWorkArea; 
 	SystemParametersInfo(SPI_GETWORKAREA,0,&rcWorkArea,0); 
 	MoveWindow(&rcWorkArea); 
+	
+	if (m_BDOC)
+	{
+		//自动纠偏裁切
+		m_conVideoCtrl.ManualImageCrop(FALSE);
+		m_conVideoCtrl.AdjuestImageCrop(TRUE);
+	} 
+	else
+	{
+		//固定区域
+		m_conVideoCtrl.ManualImageCrop(TRUE);
+		m_conVideoCtrl.SetMessage(1);
+		m_conVideoCtrl.SetRectValue(m_lLeftSite, m_lTopSite, m_lRightSite, m_lBottomSite);
+		m_conVideoCtrl.SetMessage(0);
+	}
 
 }
 
@@ -11896,11 +11917,21 @@ int CXRayViewerv10Dlg::Self_GetIntervalTime(void)
 
 	AdjustRelay(10, 50);
 
-	//固定区域
-	m_conVideoCtrl.ManualImageCrop(TRUE);
-	m_conVideoCtrl.SetMessage(1);
-	m_conVideoCtrl.SetRectValue(m_lLeftSite, m_lTopSite, m_lRightSite, m_lBottomSite);
-	m_conVideoCtrl.SetMessage(0);
+	if (m_BDOC)
+	{
+		//恢复为自动裁切
+		m_conVideoCtrl.ManualImageCrop(FALSE);
+		m_conVideoCtrl.AdjuestImageCrop(TRUE);
+	} 
+	else
+	{
+		//恢复为固定区域
+		m_conVideoCtrl.ManualImageCrop(TRUE);
+		m_conVideoCtrl.SetMessage(1);
+		m_conVideoCtrl.SetRectValue(m_lLeftSite, m_lTopSite, m_lRightSite, m_lBottomSite);
+		m_conVideoCtrl.SetMessage(0);
+	}
+	
 
 	return tem_nAvgTime;
 }

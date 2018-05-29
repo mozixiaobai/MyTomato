@@ -202,6 +202,7 @@ BOOL CUDSONE::OnInitDialog()
 
 		GetDlgItem(IDC_SLID_LIGHT)->EnableWindow(TRUE);
 		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHK_COMPUTER)->EnableWindow(TRUE);
 		GetDlgItem(IDC_RADIO_AUTO)->EnableWindow(FALSE);
 		GetDlgItem(IDC_BTN_HDRCAP)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BTN_LDRCAP)->EnableWindow(TRUE);
@@ -219,6 +220,7 @@ BOOL CUDSONE::OnInitDialog()
 
 		GetDlgItem(IDC_SLID_LIGHT)->EnableWindow(FALSE);
 		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHK_COMPUTER)->EnableWindow(FALSE);
 		GetDlgItem(IDC_RADIO_AUTO)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BTN_HDRCAP)->EnableWindow(FALSE);
 		GetDlgItem(IDC_BTN_LDRCAP)->EnableWindow(FALSE);
@@ -386,7 +388,7 @@ BOOL CUDSONE::OnInitDialog()
 	m_btnLDRCap.Init(IDB_PNG_LDRCAP, BTN_IMG_4, BTN_TYPE_NORMAL);
 
 	m_tipInfo.Create(this);
-	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_SCAN), m_vcTab1Lge[19]);
+//	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_SCAN), m_vcTab1Lge[19]);
 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_SLCDOC), m_vcTab1Lge[22]);
 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_WATER), m_vcTab1Lge[20]);
 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_NAME), m_vcTab1Lge[21]);
@@ -453,7 +455,7 @@ BOOL CUDSONE::OnInitDialog()
 		m_slidComputer.SetPos(10);
 		m_slidComputer.SetPageSize(1);
 		((CButton*)GetDlgItem(IDC_CHK_COMPUTER))->SetCheck(TRUE);
-		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(FALSE);
+		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(FALSE);		
 
 		//再将区域恢复为固定
 
@@ -465,6 +467,7 @@ BOOL CUDSONE::OnInitDialog()
 		((CButton*)GetDlgItem(IDC_CHK_COMPUTER))->SetCheck(FALSE);
 		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(TRUE);
 	}
+
 	
 
 	
@@ -2008,6 +2011,7 @@ void CUDSONE::OnClickedChkAtrantem()
 		m_vcDisableSTA.clear();
 		GetDlgItem(IDC_SLID_LIGHT)->EnableWindow(TRUE);
 		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHK_COMPUTER)->EnableWindow(TRUE);
 		GetDlgItem(IDC_RADIO_AUTO)->EnableWindow(FALSE);
 		m_btnHDRCap.SetFourState();
 		m_btnLDRCap.SetFourState();
@@ -2026,6 +2030,7 @@ void CUDSONE::OnClickedChkAtrantem()
 		m_vcDisableSTA.clear();
 		GetDlgItem(IDC_SLID_LIGHT)->EnableWindow(FALSE);
 		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHK_COMPUTER)->EnableWindow(FALSE);
 		GetDlgItem(IDC_RADIO_AUTO)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BTN_HDRCAP)->EnableWindow(FALSE);
 		GetDlgItem(IDC_BTN_LDRCAP)->EnableWindow(FALSE);
@@ -2071,6 +2076,7 @@ void CUDSONE::OnClickedChkAreflcttem()
 		m_vcDisableSTA.clear();
 		GetDlgItem(IDC_SLID_LIGHT)->EnableWindow(FALSE);
 		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHK_COMPUTER)->EnableWindow(FALSE);
 		GetDlgItem(IDC_RADIO_AUTO)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BTN_HDRCAP)->EnableWindow(FALSE);
 		GetDlgItem(IDC_BTN_LDRCAP)->EnableWindow(FALSE);
@@ -2089,6 +2095,7 @@ void CUDSONE::OnClickedChkAreflcttem()
 		m_vcDisableSTA.clear();
 		GetDlgItem(IDC_SLID_LIGHT)->EnableWindow(TRUE);
 		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHK_COMPUTER)->EnableWindow(TRUE);
 		GetDlgItem(IDC_RADIO_AUTO)->EnableWindow(FALSE);
 		m_btnHDRCap.SetFourState();
 		m_btnLDRCap.SetFourState();
