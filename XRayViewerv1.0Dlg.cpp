@@ -11847,6 +11847,7 @@ void CXRayViewerv10Dlg::putTextEx(Mat& dst, const char* str, cv::Point org, Scal
 
 int CXRayViewerv10Dlg::Self_GetIntervalTime(void)
 {
+	std::vector<CString> tem_vcBuffers;
 	//预览模式
 	m_conVideoCtrl.ManualImageCrop(FALSE);
 	m_conVideoCtrl.AdjuestImageCrop(FALSE);
@@ -11867,6 +11868,7 @@ int CXRayViewerv10Dlg::Self_GetIntervalTime(void)
 	tem_strLast += _T("\\CountTime_1.jpg");
 	
 	m_conVideoCtrl.CaptureImage(tem_strLast);
+	tem_vcBuffers.push_back(tem_strLast);
 	if(PathFileExists(tem_strLast))
 	{
 		tem_nCapCount++;
@@ -11883,6 +11885,7 @@ int CXRayViewerv10Dlg::Self_GetIntervalTime(void)
 		tem_strNext += _T(".jpg");
 		/*d、拍摄下一幅图像*/
 		m_conVideoCtrl.CaptureImage(tem_strNext);
+		tem_vcBuffers.push_back(tem_strNext);
 		if(PathFileExists(tem_strNext))
 		{
 			tem_nCapCount++;
@@ -11911,6 +11914,11 @@ int CXRayViewerv10Dlg::Self_GetIntervalTime(void)
 	}
 	
 	/*f、删除缓存图像，恢复灯箱亮度*/
+	std::vector<CString>::iterator tem_it;
+	for (tem_it = tem_vcBuffers.begin(); tem_it != tem_vcBuffers.end(); tem_it++)
+	{
+		::DeleteFile(*tem_it);
+	}
 // 	::DeleteFile(tem_strBegin);
 // 	::DeleteFile(tem_strLast);
 // 	::DeleteFile(tem_strNext);
@@ -12012,9 +12020,9 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnSettext(WPARAM wParam, LPARAM lParam)
 	m_dlgOne.Self_HideCtrls(8);
 	//等待子程序生成完毕再继续-----------------------------------------------------------
 	//删除缓存图像----------------------------------------------------------------------
-// 	::DeleteFile(tem_strHigImg);
-// 	::DeleteFile(tem_strNorImg);
-// 	::DeleteFile(tem_strLowImg);
+	::DeleteFile(tem_strHigImg);
+	::DeleteFile(tem_strNorImg);
+	::DeleteFile(tem_strLowImg);
 
 	//是否需要添加水印-------------------------------------------------------------------
 	if (m_nWaterMark == 1)
@@ -12070,7 +12078,7 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnSettext(WPARAM wParam, LPARAM lParam)
 	{
 		CopyFile(tem_strHDRImg, tem_strFilePath, FALSE);
 	}
-// 	::DeleteFile(tem_strHDRImg);
+	::DeleteFile(tem_strHDRImg);
 	
 	m_vcImgName.push_back(imgname);
 	m_vcThumbPath.push_back(tem_strThumbPath);
