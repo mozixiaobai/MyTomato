@@ -7245,6 +7245,14 @@ void CXRayViewerv10Dlg::Self_CapatureImg(CString imgname)
 	}
 	Self_ShowImgInfo(tem_strFilePath);
 	m_nImageCount++;
+	//如果拍摄模式为<透射稿>则校准灯箱
+	if (!m_BDOC)
+	{
+		int tem_nSave = m_nLastRelay;
+		Self_SetRelayZero();
+		m_nLastRelay = tem_nSave;
+		AdjustRelay(m_nLastRelay, 0);
+	}
 }
 
 
@@ -7399,13 +7407,21 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 	//恢复参数--------------------------------------------------------------------------
 	if (mode == 1)
 	{
-		//恢复灯箱---------------------------------
-		AdjustRelay(m_nLastRelay, m_nHigLight);
+		//先校准，再恢复---------------------------------
+		int tem_nSave = m_nLastRelay;
+		Self_SetRelayZero();
+		m_nLastRelay = tem_nSave; 
+		AdjustRelay(m_nLastRelay, 0);
+//		AdjustRelay(m_nLastRelay, m_nHigLight);
 	} 
 	else
 	{
-		//恢复灯箱---------------------------------
-		AdjustRelay(m_nLastRelay, m_nHigLightL);
+		//先校准，再恢复---------------------------------
+		int tem_nSave = m_nLastRelay;
+		Self_SetRelayZero();
+		m_nLastRelay = tem_nSave; 
+		AdjustRelay(m_nLastRelay, 0);
+//		AdjustRelay(m_nLastRelay, m_nHigLightL);
 	}
 	//恢复灰阶---------------------------------
 	// 	m_conVideoCtrl.SetGamma(g_nGrayValue[m_nLastGray][0], 0);
