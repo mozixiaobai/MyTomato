@@ -5,6 +5,7 @@
 #include "Uxtheme.h"    //用于设置GroupBox标题栏颜色
 #pragma comment(lib, "Uxtheme.lib")
 #include "PngButton.h"
+#include "ProgressBarEx.h"
 
 using namespace std;
 
@@ -155,11 +156,14 @@ public:
 
 	int       m_nFocusValue;       //当前焦点值
 	void Self_HideCtrls(int mode);
-	CProgressCtrl m_conProgress;
+//	CProgressCtrl m_conProgress;
+	CProgressBarEx m_conProgress;
 //	CStatic m_staProgress;
 	CString m_staProgress;
 	afx_msg void OnCustomdrawSlidAcomputer(NMHDR *pNMHDR, LRESULT *pResult);
 	CSliderCtrl m_slidComputer;
 	int         m_nComputer;      //电脑性能指标
 	afx_msg void OnClickedChkComputer();
+//	CStatic m_staProgressInfo;
+	CString m_staProgressInfo;
 };

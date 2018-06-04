@@ -11,6 +11,7 @@ extern CString  g_strProXmlPath;
 extern CString  g_strDocXmlPath;        
 extern std::vector<CString> g_vcRes;
 extern std::vector<int>     g_vcSlid;
+BOOL g_BBarColor;
 
 // CUDSONE 对话框
 IMPLEMENT_DYNAMIC(CUDSONE, CDialogEx)
@@ -20,6 +21,8 @@ CUDSONE::CUDSONE(CWnd* pParent /*=NULL*/)
 {
 
 	m_staProgress = _T("");
+	g_BBarColor   = FALSE;
+	m_staProgressInfo = _T("");
 }
 
 CUDSONE::~CUDSONE()
@@ -51,6 +54,8 @@ void CUDSONE::DoDataExchange(CDataExchange* pDX)
 	//  DDX_Control(pDX, IDC_STA_PROGRESS, m_staProgress);
 	DDX_Text(pDX, IDC_STA_PROGRESS, m_staProgress);
 	DDX_Control(pDX, IDC_SLID_ACOMPUTER, m_slidComputer);
+	//  DDX_Control(pDX, IDC_STA_PROGRESSINFO, m_staProgressInfo);
+	DDX_Text(pDX, IDC_STA_PROGRESSINFO, m_staProgressInfo);
 }
 
 
@@ -439,13 +444,18 @@ BOOL CUDSONE::OnInitDialog()
 	//获取当前焦点值，并设置焦点值
 
 	/*11、进度条初始化*/
+// 	CProgressCtrl * pProg=(CProgressCtrl*)GetDlgItem(IDC_PROGRESS_HDR);
+// 	::SendMessage(pProg->GetSafeHwnd(), PBM_SETBKCOLOR, 0, RGB(0,0,0));
+// 	::SendMessage(pProg->GetSafeHwnd(), PBM_SETBARCOLOR, 0, RGB(255,0,0));
+// 	m_conProgress.ModifyStyleEx(WS_EX_STATICEDGE,0);
 	m_conProgress.SetRange(0, 100);
 	m_conProgress.SetPos(0);
 	m_conProgress.ShowWindow(SW_HIDE);
 	m_staProgress = _T("0%");
+	m_staProgressInfo = _T("");
 	UpdateData(FALSE);
 	GetDlgItem(IDC_STA_PROGRESS)->ShowWindow(SW_HIDE);
-
+	GetDlgItem(IDC_STA_PROGRESSINFO)->ShowWindow(SW_HIDE);
 	/*12、电脑性能初始化*/
 	m_slidComputer.SetRange(1, 20, TRUE);
 	if (m_nComputer == 0)
@@ -467,12 +477,6 @@ BOOL CUDSONE::OnInitDialog()
 		((CButton*)GetDlgItem(IDC_CHK_COMPUTER))->SetCheck(FALSE);
 		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(TRUE);
 	}
-
-	
-
-	
-	
-	
 
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -515,7 +519,7 @@ HBRUSH CUDSONE::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		pWnd->GetDlgCtrlID()==IDC_STA_ADFOCUS || pWnd->GetDlgCtrlID()==IDC_STA_ADFOCUSV || /*pWnd->GetDlgCtrlID()==IDC_STA_TRANS ||*/
 		pWnd->GetDlgCtrlID()==IDC_STA_AUTO || pWnd->GetDlgCtrlID()==IDC_STA_HDR ||
 		pWnd->GetDlgCtrlID()==IDC_STA_ATRANSTEM || pWnd->GetDlgCtrlID()==IDC_STA_AREFLCTTEM ||
-		pWnd->GetDlgCtrlID()==IDC_STA_PROGRESS)
+		pWnd->GetDlgCtrlID()==IDC_STA_PROGRESS || pWnd->GetDlgCtrlID()==IDC_STA_PROGRESSINFO)
 	{
 		hbr = (HBRUSH)GetStockObject(NULL_BRUSH);
 		pDC->SetBkMode(TRANSPARENT);
@@ -585,6 +589,7 @@ void CUDSONE::OnPaint()
 	}
 	pDC->BitBlt(0, 0, tem_rcClient.Width(), tem_rcClient.Height(), &dcMem, 0, 0, SRCCOPY);
 	memBitmap.DeleteObject();
+
 	// 不为绘图消息调用 CDialogEx::OnPaint()
 }
 
@@ -2158,83 +2163,115 @@ void CUDSONE::Self_HideCtrls(int mode)
 {
 	if (mode == 1)
 	{
+		g_BBarColor = FALSE;
 		GetDlgItem(IDC_BTN_HDRCAP)->ShowWindow(SW_HIDE);
 		GetDlgItem(IDC_BTN_LDRCAP)->ShowWindow(SW_HIDE);
 		GetDlgItem(IDC_BTN_SCAN)->ShowWindow(SW_HIDE);
 		m_conProgress.ShowWindow(SW_NORMAL);
 		GetDlgItem(IDC_STA_PROGRESS)->ShowWindow(SW_NORMAL);
+		GetDlgItem(IDC_STA_PROGRESSINFO)->ShowWindow(SW_NORMAL);
+		m_staProgressInfo = _T("拍摄中！");
+		UpdateData(FALSE);
 		
 	}
 	else if (mode == 0)
 	{
+		g_BBarColor = FALSE;
 		GetDlgItem(IDC_BTN_HDRCAP)->ShowWindow(SW_NORMAL);
 		GetDlgItem(IDC_BTN_LDRCAP)->ShowWindow(SW_NORMAL);
 		GetDlgItem(IDC_BTN_SCAN)->ShowWindow(SW_NORMAL);
 		m_conProgress.ShowWindow(SW_HIDE);
 		GetDlgItem(IDC_STA_PROGRESS)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_STA_PROGRESSINFO)->ShowWindow(SW_HIDE);
+		m_staProgressInfo = _T("");
+		UpdateData(FALSE);
 	}
 	else if (mode == 2)
 	{
+		g_BBarColor = FALSE;
 		m_conProgress.SetPos(10);
 		m_staProgress = _T("10%");
+		m_staProgressInfo = _T("拍摄中！");
 		UpdateData(FALSE);
 	}
 	else if (mode == 3)
 	{
+		g_BBarColor = FALSE;
 		m_conProgress.SetPos(20);
 		m_staProgress = _T("20%");
+		m_staProgressInfo = _T("拍摄中！");
 		UpdateData(FALSE);
 	}
 	else if (mode == 4)
 	{
+		g_BBarColor = FALSE;
 		m_conProgress.SetPos(30);
 		m_staProgress = _T("30%");
+		m_staProgressInfo = _T("拍摄中！");
 		UpdateData(FALSE);
 	}
 	else if (mode == 5)
 	{
+		g_BBarColor = FALSE;
 		m_conProgress.SetPos(35);
 		m_staProgress = _T("35%");
+		m_staProgressInfo = _T("拍摄中！");
 		UpdateData(FALSE);
 	}
 	else if (mode == 6)
 	{
+		g_BBarColor = TRUE;
 		m_conProgress.SetPos(40);
 		m_staProgress = _T("40%");
+		m_staProgressInfo = _T("拍摄完成，可以更换胶片！");
 		UpdateData(FALSE);
 	}
 	else if (mode == 7)
 	{
+		g_BBarColor = TRUE;
 		m_conProgress.SetPos(70);
 		m_staProgress = _T("70%");
+		m_staProgressInfo = _T("拍摄完成，可以更换胶片！");
 		UpdateData(FALSE);
 	}
 	else if (mode == 8)
 	{
+		g_BBarColor = TRUE;
 		m_conProgress.SetPos(90);
 		m_staProgress = _T("90%");
+		m_staProgressInfo = _T("拍摄完成，可以更换胶片！");
 		UpdateData(FALSE);
 	}
 	else if (mode == 9)
 	{
+		g_BBarColor = TRUE;
 		m_conProgress.SetPos(85);
 		m_staProgress = _T("85%");
+		m_staProgressInfo = _T("拍摄完成，可以更换胶片！");
 		UpdateData(FALSE);
 	}
 	else if (mode == 10)
 	{
+		g_BBarColor = TRUE;
 		m_conProgress.SetPos(90);
 		m_staProgress = _T("90%");
+		m_staProgressInfo = _T("拍摄完成，可以更换胶片！");
 		UpdateData(FALSE);
 	}
 	else if (mode == 11)
 	{
+		g_BBarColor = TRUE;
 		m_conProgress.SetPos(100);
 		m_staProgress = _T("100%");
+		m_staProgressInfo = _T("拍摄完成，可以更换胶片！");
 		UpdateData(FALSE);
 	}
 	CRect  tem_rcRect;; 
 	GetDlgItem(IDC_STA_PROGRESS)->GetWindowRect(&tem_rcRect); 
+	ScreenToClient(&tem_rcRect); 
+	InvalidateRect(&tem_rcRect);
+
+	GetDlgItem(IDC_STA_PROGRESSINFO)->GetWindowRect(&tem_rcRect); 
 	ScreenToClient(&tem_rcRect); 
 	InvalidateRect(&tem_rcRect);
 	
