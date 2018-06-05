@@ -23,6 +23,7 @@ CUDSONE::CUDSONE(CWnd* pParent /*=NULL*/)
 	m_staProgress = _T("");
 	g_BBarColor   = FALSE;
 	m_staProgressInfo = _T("");
+	m_staComputerD = _T("");
 }
 
 CUDSONE::~CUDSONE()
@@ -56,6 +57,7 @@ void CUDSONE::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SLID_ACOMPUTER, m_slidComputer);
 	//  DDX_Control(pDX, IDC_STA_PROGRESSINFO, m_staProgressInfo);
 	DDX_Text(pDX, IDC_STA_PROGRESSINFO, m_staProgressInfo);
+	DDX_Text(pDX, IDC_STA_ACOMPUTERV, m_staComputerD);
 }
 
 
@@ -467,6 +469,8 @@ BOOL CUDSONE::OnInitDialog()
 		((CButton*)GetDlgItem(IDC_CHK_COMPUTER))->SetCheck(TRUE);
 		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(FALSE);		
 
+		m_staComputerD = _T("10");
+		UpdateData(FALSE);
 		//再将区域恢复为固定
 
 	} 
@@ -476,6 +480,8 @@ BOOL CUDSONE::OnInitDialog()
 		m_slidComputer.SetPageSize(1);
 		((CButton*)GetDlgItem(IDC_CHK_COMPUTER))->SetCheck(FALSE);
 		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(TRUE);
+		m_staComputerD.Format(_T("%d"), m_nComputer);
+		UpdateData(FALSE);
 	}
 
 
@@ -2132,6 +2138,7 @@ void CUDSONE::OnClickedChkAreflcttem()
 	InvalidateRect(&tem_rcRect);
 }
 
+
 void CUDSONE::OnCustomdrawSlidAdfocus(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
@@ -2289,6 +2296,13 @@ void CUDSONE::OnCustomdrawSlidAcomputer(NMHDR *pNMHDR, LRESULT *pResult)
 		tem_strInfo.Format(_T("%d"), m_nComputer);
 		::WritePrivateProfileString(_T("BaseSet"), _T("Computer"), tem_strInfo, m_strIniPath);
 
+		m_staComputerD = tem_strInfo;
+		UpdateData(FALSE);
+		CRect  tem_rcRect;; 
+		GetDlgItem(IDC_STA_ACOMPUTERV)->GetWindowRect(&tem_rcRect); 
+		ScreenToClient(&tem_rcRect);                              //转到客户端界面
+		InvalidateRect(&tem_rcRect);                              //最后刷新对话框背景 
+
 		::SendMessage(m_hParentWnd, WM_SCANSET, 33, m_nComputer);
 	}
 	
@@ -2311,8 +2325,8 @@ void CUDSONE::OnClickedChkComputer()
 	{
 		//手动设置
 		GetDlgItem(IDC_SLID_ACOMPUTER)->EnableWindow(TRUE);
-		m_slidComputer.SetPos(19);
-		::WritePrivateProfileString(_T("BaseSet"), _T("Computer"), _T("19"), m_strIniPath);
-		::SendMessage(m_hParentWnd, WM_SCANSET, 34, 19);
+		m_slidComputer.SetPos(2);
+		::WritePrivateProfileString(_T("BaseSet"), _T("Computer"), _T("2"), m_strIniPath);
+		::SendMessage(m_hParentWnd, WM_SCANSET, 34, 2);
 	}
 }

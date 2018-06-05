@@ -650,7 +650,8 @@ BOOL CXRayViewerv10Dlg::OnInitDialog()
 	} 
 	else
 	{
-		m_nIntervalTime = (21-m_nIniTime)*1000;
+//		m_nIntervalTime = (21-m_nIniTime)*1000;
+		m_nIntervalTime = m_nIniTime*1000;
 	}
  	
 
@@ -1956,7 +1957,8 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 	case 33:
 		if (tem_nInfo != m_nIniTime)
 		{
-			m_nIntervalTime = (21-tem_nInfo)*1000;
+//			m_nIntervalTime = (21-tem_nInfo)*1000;
+			m_nIntervalTime = tem_nInfo*1000;
 			m_nIniTime = tem_nInfo;
 		}
 		
@@ -1970,7 +1972,8 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		else
 		{
 			//默认时间设置为2秒
-			m_nIntervalTime = (21-tem_nInfo)*1000;
+//			m_nIntervalTime = (21-tem_nInfo)*1000;
+			m_nIntervalTime = tem_nInfo*1000;
 			m_nIniTime = tem_nInfo;
 		}
 		break;
@@ -11891,7 +11894,7 @@ int CXRayViewerv10Dlg::Self_GetIntervalTime(void)
 		tem_dLastGray = Self_GetAvgGray(tem_strLast);
 	}
 	
-	while(abs(tem_dNextGray-tem_dLastGray)>=1)
+	while(abs(tem_dNextGray-tem_dLastGray)>=3)
 	{
 		CString tem_strNext = m_strThumbDoc;
 		CString str;
@@ -11908,7 +11911,7 @@ int CXRayViewerv10Dlg::Self_GetIntervalTime(void)
 			tem_dNextGray = Self_GetAvgGray(tem_strNext);
 		}
 		
-		if (abs(tem_dNextGray-tem_dLastGray)<=1)
+		if (abs(tem_dNextGray-tem_dLastGray)<3)
 		{
 			break;
 		} 
@@ -11983,7 +11986,8 @@ double CXRayViewerv10Dlg::Self_GetAvgGray(CString imgpath)
 		}
 	}
 
-	tem_dAvgGray = (double)tem_dSumGray/(tem_cvImg.rows*tem_cvImg.cols);
+//	tem_dAvgGray = (double)tem_dSumGray/(tem_cvImg.rows*tem_cvImg.cols);
+	tem_dAvgGray = (double)tem_dSumGray/((tem_cvImg.rows*tem_cvImg.cols)/6);
 	tem_cvImg.release();
 
 	return tem_dAvgGray;

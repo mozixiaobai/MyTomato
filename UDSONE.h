@@ -166,4 +166,5 @@ public:
 	afx_msg void OnClickedChkComputer();
 //	CStatic m_staProgressInfo;
 	CString m_staProgressInfo;
+	CString m_staComputerD;
 };
