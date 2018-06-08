@@ -1429,7 +1429,7 @@ void CXRayViewerv10Dlg::Self_ReadIni(CString inipath)
 	m_nFocusValue = tem_nRead;
 	tem_strRead.ReleaseBuffer();	
 
-	::GetPrivateProfileString(_T("BaseSet"), _T("Computer=0"), _T("没有找到Computer=0信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
+	::GetPrivateProfileString(_T("BaseSet"), _T("Computer"), _T("没有找到Computer=0信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
 	tem_nRead     = _ttoi(tem_strRead);
 	m_nIniTime    = tem_nRead;
 	tem_strRead.ReleaseBuffer();	
@@ -1592,10 +1592,10 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 				break;
 			case 1:
 				m_conVideoCtrl.RotatedVideo(1);
-				m_conVideoCtrl.ManualImageCrop(TRUE);
-				m_conVideoCtrl.SetMessage(1);
-				m_conVideoCtrl.SetRectValue(239+191, 6, 466+191, 119);
-				m_conVideoCtrl.SetMessage(0);	
+// 				m_conVideoCtrl.ManualImageCrop(TRUE);
+// 				m_conVideoCtrl.SetMessage(1);
+// 				m_conVideoCtrl.SetRectValue(239+191, 6, 466+191, 119);
+// 				m_conVideoCtrl.SetMessage(0);	
 				break;
 			case 2:
 				m_conVideoCtrl.RotatedVideo(2);
@@ -8964,7 +8964,6 @@ void CXRayViewerv10Dlg::Self_SetRelayZero(void)
 }
 
 
-
 void CXRayViewerv10Dlg::Self_SetRelay1(void)
 {
 	int tem_nDeviceHandle;
@@ -12040,9 +12039,9 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnSettext(WPARAM wParam, LPARAM lParam)
 	m_dlgOne.Self_HideCtrls(8);
 	//等待子程序生成完毕再继续-----------------------------------------------------------
 	//删除缓存图像----------------------------------------------------------------------
-	::DeleteFile(tem_strHigImg);
-	::DeleteFile(tem_strNorImg);
-	::DeleteFile(tem_strLowImg);
+// 	::DeleteFile(tem_strHigImg);
+// 	::DeleteFile(tem_strNorImg);
+// 	::DeleteFile(tem_strLowImg);
 
 	//是否需要添加水印-------------------------------------------------------------------
 	if (m_nWaterMark == 1)
