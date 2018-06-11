@@ -167,4 +167,6 @@ public:
 //	CStatic m_staProgressInfo;
 	CString m_staProgressInfo;
 	CString m_staComputerD;
+	afx_msg void OnBnClickedBtnText1();
+	afx_msg void OnBnClickedBtnText2();
 };

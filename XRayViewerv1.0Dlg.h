@@ -483,6 +483,12 @@ public:
 	BOOL m_BFirstCap;
 	double Self_GetAvgGray(CString imgpath);
 	void Self_HDRMergeImgEx(CString LowImg, CString NorImg, CString HigImg, CString OutImg, int mode, int lowlight_L, int norlight_L, int higlight_L, int lowlight_H, int norlight_H, int higlight_H);
+
+	//拍文字
+	int m_nTextLgtT; //透明文字，灯箱亮度
+	int m_nTextCstT; //透明文字，对比度
+	int m_nTextLgtL; //非透明文字，灯箱亮度
+	int m_nTextCstL; //非透明文字，对比度
 protected:
 	afx_msg LRESULT OnSettext(WPARAM wParam, LPARAM lParam);
 };

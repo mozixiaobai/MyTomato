@@ -1429,10 +1429,32 @@ void CXRayViewerv10Dlg::Self_ReadIni(CString inipath)
 	m_nFocusValue = tem_nRead;
 	tem_strRead.ReleaseBuffer();	
 
-	::GetPrivateProfileString(_T("BaseSet"), _T("Computer"), _T("没有找到Computer=0信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
+	::GetPrivateProfileString(_T("BaseSet"), _T("Computer"), _T("没有找到Computer信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
 	tem_nRead     = _ttoi(tem_strRead);
 	m_nIniTime    = tem_nRead;
 	tem_strRead.ReleaseBuffer();	
+
+	::GetPrivateProfileString(_T("BaseSet"), _T("TextT"), _T("没有找到TextT信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
+	tem_strRead.ReleaseBuffer();
+	int tem_nIndex = tem_strRead.Find(_T("#"));
+	CString tem_strIndex = tem_strRead.Mid(0, tem_nIndex);
+	tem_nRead = _ttoi(tem_strIndex);
+	m_nTextLgtT = tem_nRead;
+	tem_strIndex = tem_strRead.Mid(tem_nIndex+1);
+	tem_nRead = _ttoi(tem_strIndex);
+	m_nTextCstT = tem_nRead;
+	tem_strRead.ReleaseBuffer();
+
+	::GetPrivateProfileString(_T("BaseSet"), _T("TextN"), _T("没有找到TextN信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
+	tem_strRead.ReleaseBuffer();
+	tem_nIndex = tem_strRead.Find(_T("#"));
+	tem_strIndex = tem_strRead.Mid(0, tem_nIndex);
+	tem_nRead = _ttoi(tem_strIndex);
+	m_nTextLgtL = tem_nRead;
+	tem_strIndex = tem_strRead.Mid(tem_nIndex+1);
+	tem_nRead = _ttoi(tem_strIndex);
+	m_nTextCstL = tem_nRead;
+	tem_strRead.ReleaseBuffer();
 }
 
 
@@ -1756,6 +1778,7 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		if (tem_nInfo!=m_nLastRelay)
 		{
 			Self_SetRelayValue(tem_nInfo);
+//			m_nLastRelay = tem_nInfo;
 // 			m_dlgTwo.m_nLastLightBox = tem_nInfo;
 // 			m_dlgTwo.Self_UpdateSlider(2);
 		}
@@ -1770,6 +1793,7 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		if (tem_nInfo!=m_nLastRelay)
 		{
 			Self_SetRelayValue(tem_nInfo);
+//			m_nLastRelay = tem_nInfo;
 // 			m_dlgTwo.m_nLastLightBox = tem_nInfo;
 // 			m_dlgTwo.Self_UpdateSlider(2);
 		}
@@ -1783,6 +1807,7 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		if (tem_nInfo!=m_nLastRelay)
 		{
 			Self_SetRelayValue(tem_nInfo);
+//			m_nLastRelay = tem_nInfo;
 // 			m_dlgTwo.m_nLastLightBox = tem_nInfo;
 // 			m_dlgTwo.Self_UpdateSlider(2);
 		}
@@ -1975,6 +2000,48 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 //			m_nIntervalTime = (21-tem_nInfo)*1000;
 			m_nIntervalTime = tem_nInfo*1000;
 			m_nIniTime = tem_nInfo;
+		}
+		break;
+	case 35:
+		//设置灯箱亮度以及对比度，并延时
+		if (m_nTextCstT!=-1)
+		{
+			m_conVideoCtrl.SetContrast(m_nTextCstT, 0);
+		}
+		if (m_nTextLgtT!=-1)
+		{
+			AdjustRelay(m_nTextLgtT, m_nLastRelay);
+		}
+		Self_TimeDelay(m_nIntervalTime);
+		//拍照
+		tem_strImgName  = Self_NamingFile(m_nImageCount);
+		Self_CapatureImg(tem_strImgName);
+		m_nPrcsIndex = -1;
+		//恢复灯箱亮度以及对比度
+		if (m_nTextCstT!=-1)
+		{
+			m_conVideoCtrl.SetContrast(m_nLastContrst, 0);	
+		}
+		break;
+	case 36:
+		//设置灯箱亮度以及对比度，并延时
+		if (m_nTextCstT!=-1)
+		{
+			m_conVideoCtrl.SetContrast(m_nTextCstL, 0);
+		}
+		if (m_nTextLgtT!=-1)
+		{
+			AdjustRelay(m_nTextLgtL, m_nLastRelay);
+		}
+		Self_TimeDelay(m_nIntervalTime);
+		//拍照
+		tem_strImgName  = Self_NamingFile(m_nImageCount);
+		Self_CapatureImg(tem_strImgName);
+		m_nPrcsIndex = -1;
+		//恢复灯箱亮度以及对比度
+		if (m_nTextCstT!=-1)
+		{
+			m_conVideoCtrl.SetContrast(m_nLastContrst, 0);	
 		}
 		break;
 	default:

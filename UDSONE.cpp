@@ -105,6 +105,8 @@ BEGIN_MESSAGE_MAP(CUDSONE, CDialogEx)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLID_ADFOCUS, &CUDSONE::OnCustomdrawSlidAdfocus)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLID_ACOMPUTER, &CUDSONE::OnCustomdrawSlidAcomputer)
 	ON_BN_CLICKED(IDC_CHK_COMPUTER, &CUDSONE::OnClickedChkComputer)
+	ON_BN_CLICKED(IDC_BTN_TEXT1, &CUDSONE::OnBnClickedBtnText1)
+	ON_BN_CLICKED(IDC_BTN_TEXT2, &CUDSONE::OnBnClickedBtnText2)
 END_MESSAGE_MAP()
 
 
@@ -213,6 +215,8 @@ BOOL CUDSONE::OnInitDialog()
 		GetDlgItem(IDC_RADIO_AUTO)->EnableWindow(FALSE);
 		GetDlgItem(IDC_BTN_HDRCAP)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BTN_LDRCAP)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BTN_TEXT1)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BTN_TEXT2)->EnableWindow(TRUE);
 
 		m_vcDisableSTA.push_back(IDC_STA_AUTO);
 
@@ -231,6 +235,8 @@ BOOL CUDSONE::OnInitDialog()
 		GetDlgItem(IDC_RADIO_AUTO)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BTN_HDRCAP)->EnableWindow(FALSE);
 		GetDlgItem(IDC_BTN_LDRCAP)->EnableWindow(FALSE);
+		GetDlgItem(IDC_BTN_TEXT1)->EnableWindow(FALSE);
+		GetDlgItem(IDC_BTN_TEXT2)->EnableWindow(FALSE);
 
 		m_vcDisableSTA.push_back(IDC_STA_LIGHTBOX);
 		m_vcDisableSTA.push_back(IDC_STA_ALIGHTV);
@@ -2028,6 +2034,8 @@ void CUDSONE::OnClickedChkAtrantem()
 		m_btnLDRCap.SetFourState();
 		GetDlgItem(IDC_BTN_HDRCAP)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BTN_LDRCAP)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BTN_TEXT1)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BTN_TEXT2)->EnableWindow(TRUE);
 
 		m_vcDisableSTA.push_back(IDC_STA_AUTO);
 
@@ -2045,6 +2053,8 @@ void CUDSONE::OnClickedChkAtrantem()
 		GetDlgItem(IDC_RADIO_AUTO)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BTN_HDRCAP)->EnableWindow(FALSE);
 		GetDlgItem(IDC_BTN_LDRCAP)->EnableWindow(FALSE);
+		GetDlgItem(IDC_BTN_TEXT1)->EnableWindow(FALSE);
+		GetDlgItem(IDC_BTN_TEXT2)->EnableWindow(FALSE);
 
 		m_vcDisableSTA.push_back(IDC_STA_LIGHTBOX);
 		m_vcDisableSTA.push_back(IDC_STA_ALIGHTV);
@@ -2091,6 +2101,8 @@ void CUDSONE::OnClickedChkAreflcttem()
 		GetDlgItem(IDC_RADIO_AUTO)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BTN_HDRCAP)->EnableWindow(FALSE);
 		GetDlgItem(IDC_BTN_LDRCAP)->EnableWindow(FALSE);
+		GetDlgItem(IDC_BTN_TEXT1)->EnableWindow(FALSE);
+		GetDlgItem(IDC_BTN_TEXT2)->EnableWindow(FALSE);
 
 		m_vcDisableSTA.push_back(IDC_STA_LIGHTBOX);
 		m_vcDisableSTA.push_back(IDC_STA_ALIGHTV);
@@ -2112,6 +2124,8 @@ void CUDSONE::OnClickedChkAreflcttem()
 		m_btnLDRCap.SetFourState();
 		GetDlgItem(IDC_BTN_HDRCAP)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BTN_LDRCAP)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BTN_TEXT1)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BTN_TEXT2)->EnableWindow(TRUE);
 
 		m_vcDisableSTA.push_back(IDC_STA_AUTO);
 	}
@@ -2174,6 +2188,8 @@ void CUDSONE::Self_HideCtrls(int mode)
 		GetDlgItem(IDC_BTN_HDRCAP)->ShowWindow(SW_HIDE);
 		GetDlgItem(IDC_BTN_LDRCAP)->ShowWindow(SW_HIDE);
 		GetDlgItem(IDC_BTN_SCAN)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_BTN_TEXT1)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_BTN_TEXT2)->ShowWindow(SW_HIDE);
 		m_conProgress.ShowWindow(SW_NORMAL);
 		GetDlgItem(IDC_STA_PROGRESS)->ShowWindow(SW_NORMAL);
 		GetDlgItem(IDC_STA_PROGRESSINFO)->ShowWindow(SW_NORMAL);
@@ -2187,6 +2203,8 @@ void CUDSONE::Self_HideCtrls(int mode)
 		GetDlgItem(IDC_BTN_HDRCAP)->ShowWindow(SW_NORMAL);
 		GetDlgItem(IDC_BTN_LDRCAP)->ShowWindow(SW_NORMAL);
 		GetDlgItem(IDC_BTN_SCAN)->ShowWindow(SW_NORMAL);
+		GetDlgItem(IDC_BTN_TEXT1)->ShowWindow(SW_NORMAL);
+		GetDlgItem(IDC_BTN_TEXT2)->ShowWindow(SW_NORMAL);
 		m_conProgress.ShowWindow(SW_HIDE);
 		GetDlgItem(IDC_STA_PROGRESS)->ShowWindow(SW_HIDE);
 		GetDlgItem(IDC_STA_PROGRESSINFO)->ShowWindow(SW_HIDE);
@@ -2329,4 +2347,18 @@ void CUDSONE::OnClickedChkComputer()
 		::WritePrivateProfileString(_T("BaseSet"), _T("Computer"), _T("2"), m_strIniPath);
 		::SendMessage(m_hParentWnd, WM_SCANSET, 34, 2);
 	}
+}
+
+
+void CUDSONE::OnBnClickedBtnText1()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	::SendMessage(m_hParentWnd, WM_SCANSET, 35, 0);
+}
+
+
+void CUDSONE::OnBnClickedBtnText2()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	::SendMessage(m_hParentWnd, WM_SCANSET, 36, 0);
 }
