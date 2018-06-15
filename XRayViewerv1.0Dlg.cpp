@@ -124,6 +124,7 @@ ON_MESSAGE(WM_REFRESHIMG, &CXRayViewerv10Dlg::OnRefreshimg)
 ON_BN_CLICKED(IDC_BTN_DRAG, &CXRayViewerv10Dlg::OnBnClickedBtnDrag)
 ON_NOTIFY(TCN_SELCHANGING, IDC_TAB_CTRL, &CXRayViewerv10Dlg::OnSelchangingTabCtrl)
 ON_MESSAGE(WM_SETTEXT, &CXRayViewerv10Dlg::OnSettext)
+ON_MESSAGE(WM_THREADOVER, &CXRayViewerv10Dlg::OnThreadover)
 END_MESSAGE_MAP()
 
 
@@ -1941,14 +1942,24 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		{
 			//高密度拍摄
 			tem_strImgName  = Self_NamingFile(m_nImageCount);
-			Self_CaptureImgHDR(tem_strImgName, 1);
+			m_strCurImgName = tem_strImgName;
+
+			m_nCurImgMode   = 1; //高密度标识位
+
+			Self_CaptureImgHDRThread(m_strCurImgName, 1, 0);
+// 			Self_CaptureImgHDR(tem_strImgName, 1);
 			m_nPrcsIndex = -1;
 		} 
 		else
 		{
 			//低密度拍摄
 			tem_strImgName  = Self_NamingFile(m_nImageCount);
-			Self_CaptureImgHDR(tem_strImgName, 0);
+			m_strCurImgName = tem_strImgName;
+
+			m_nCurImgMode   = 0; //低密度标志位
+
+			Self_CaptureImgHDRThread(m_strCurImgName, 0, 0);
+//			Self_CaptureImgHDR(tem_strImgName, 0);
 			m_nPrcsIndex = -1;
 
 		}
@@ -7609,6 +7620,212 @@ void CXRayViewerv10Dlg::Self_CaptureImgHDR(CString imgname, int mode)
 	 */
 }
 
+
+void CXRayViewerv10Dlg::Self_CaptureImgHDRThread(CString imgname, int mode, int ex)
+{	
+	//文件命名---------------------------------------------------------------------------
+	CString    tem_strLowImg    = m_strThumbDoc;      //欠曝图像
+	tem_strLowImg              += _T("\\lbmd");
+	tem_strLowImg              += imgname;
+
+	CString    tem_strNorImg    = m_strThumbDoc;      //正常图像
+	tem_strNorImg              += _T("\\nbmd");
+	tem_strNorImg              += imgname;
+
+	CString    tem_strHigImg    = m_strThumbDoc;      //过曝图像
+	tem_strHigImg              += _T("\\hbmd");
+	tem_strHigImg              += imgname;
+
+	CString    tem_strHDRImg    = m_strThumbDoc;      //合成图像
+	tem_strHDRImg              += _T("\\bmd");
+	tem_strHDRImg              += imgname;
+
+	CString    tem_strThumbPath = m_strThumbDoc;      //缩略图像
+	tem_strThumbPath           += _T("\\~");
+	tem_strThumbPath           += imgname;
+	tem_strThumbPath           += _T(".jpg");
+
+	CString    tem_strIntImg    = m_strThumbDoc;      //插值图像
+	tem_strIntImg              += _T("\\~~~");
+	tem_strIntImg              += imgname;
+
+	CString    tem_strFilePath  = m_strSaveDoc;       //目标文件
+	tem_strFilePath            += imgname;
+	tem_strFilePath            += m_strFileFormat;
+	
+	if (m_nLastImgType>=0 && m_nLastImgType<3)
+	{
+		tem_strLowImg += m_strFileFormat;
+		tem_strNorImg += m_strFileFormat;
+		tem_strHigImg += m_strFileFormat;
+		tem_strHDRImg += m_strFileFormat;
+		tem_strIntImg += m_strFileFormat;
+	} 
+	else if(m_nLastImgType == 4 || m_nLastImgType == 5 ||m_nLastImgType == 3)  //3-tif,tif无法合成
+	{
+		tem_strLowImg += _T(".jpg");
+		tem_strNorImg += _T(".jpg");
+		tem_strHigImg += _T(".jpg");
+		tem_strHDRImg += _T(".jpg");
+		tem_strIntImg += _T(".jpg");
+	}
+	/*
+	*     说明
+	*   由于不同拍照间不需要再设置不同灰阶和逆光对比，因此将这两项设置注释，以提升效率
+	*
+	*/
+	if (ex == 0)
+	{
+		m_dlgOne.Self_HideCtrls(1);
+		m_vcSomeStrInfo.clear();
+
+		if (mode == 1)
+		{
+			if (m_nNorLight != m_nLastRelay)
+			{
+				//调节灯箱**********************************
+				AdjustRelay(m_nNorLight, m_nLastRelay);
+				stcThreadInfo.hWnd = this->m_hWnd;
+				stcThreadInfo.time = m_nIntervalTime;
+				stcThreadInfo.mode = 1;
+				hThreadHandle = AfxBeginThread(ThreadDelay, &stcThreadInfo, THREAD_PRIORITY_NORMAL, 0, NULL);
+			}	
+			else
+			{
+				//亮度=10，不需要延时
+				stcThreadInfo.hWnd = this->m_hWnd;
+				stcThreadInfo.time = 0;
+				stcThreadInfo.mode = 1;
+				hThreadHandle = AfxBeginThread(ThreadDelay, &stcThreadInfo, THREAD_PRIORITY_NORMAL, 0, NULL);
+			}
+		} 
+		else
+		{
+			if (m_nNorLightL != m_nLastRelay)
+			{
+				//调节灯箱**********************************
+				AdjustRelay(m_nNorLightL, m_nLastRelay);
+				stcThreadInfo.hWnd = this->m_hWnd;
+				stcThreadInfo.time = m_nIntervalTime;
+				stcThreadInfo.mode = 1;
+				hThreadHandle = AfxBeginThread(ThreadDelay, &stcThreadInfo, THREAD_PRIORITY_NORMAL, 0, NULL);
+			}
+			else
+			{
+				//亮度=10，不需要延时
+				stcThreadInfo.hWnd = this->m_hWnd;
+				stcThreadInfo.time = 0;
+				stcThreadInfo.mode = 1;
+				hThreadHandle = AfxBeginThread(ThreadDelay, &stcThreadInfo, THREAD_PRIORITY_NORMAL, 0, NULL);
+			}
+		}
+		
+	}
+	else if (ex == 1)
+	{
+		m_conVideoCtrl.CaptureImage(tem_strNorImg);
+		m_dlgOne.Self_HideCtrls(2);
+		if (mode == 1)
+		{
+			//调节灯箱**********************************
+			AdjustRelay(m_nLowLight, m_nNorLight);
+		} 
+		else
+		{
+			//调节灯箱**********************************
+			AdjustRelay(m_nLowLightL, m_nNorLightL);
+		}
+		stcThreadInfo.hWnd = this->m_hWnd;
+		stcThreadInfo.time = m_nIntervalTime;
+		stcThreadInfo.mode = 2;
+		hThreadHandle = AfxBeginThread(ThreadDelay, &stcThreadInfo, THREAD_PRIORITY_NORMAL, 0, NULL);
+	}
+	else if (ex == 2)
+	{
+		m_conVideoCtrl.CaptureImage(tem_strLowImg);
+		m_dlgOne.Self_HideCtrls(3);
+		if (mode == 1)
+		{
+			//调节灯箱**********************************
+			AdjustRelay(m_nHigLight, m_nLowLight);
+		} 
+		else
+		{
+			//调节灯箱**********************************
+			AdjustRelay(m_nHigLightL, m_nLowLightL);
+		}
+		stcThreadInfo.hWnd = this->m_hWnd;
+		stcThreadInfo.time = m_nIntervalTime;
+		stcThreadInfo.mode = 3;
+		hThreadHandle = AfxBeginThread(ThreadDelay, &stcThreadInfo, THREAD_PRIORITY_NORMAL, 0, NULL);
+	}
+	else if (ex == 3)
+	{
+		m_conVideoCtrl.CaptureImage(tem_strHigImg);
+		m_dlgOne.Self_HideCtrls(4);
+
+		//恢复参数--------------------------------------------------------------------------
+		if (mode == 1)
+		{
+			//先校准，再恢复---------------------------------
+			int tem_nSave = m_nLastRelay;
+			Self_SetRelayZero();
+			m_nLastRelay = tem_nSave; 
+			AdjustRelay(m_nLastRelay, 0);
+		} 
+		else
+		{
+			//先校准，再恢复---------------------------------
+			int tem_nSave = m_nLastRelay;
+			Self_SetRelayZero();
+			m_nLastRelay = tem_nSave; 
+			AdjustRelay(m_nLastRelay, 0);
+		}
+		Self_HDRMergeImgEx(tem_strLowImg, tem_strNorImg, tem_strHigImg, tem_strHDRImg, mode, m_nLowLightL, m_nNorLightL, m_nHigLightL, m_nLowLight, m_nNorLight, m_nHigLight);
+		m_dlgOne.Self_HideCtrls(5);
+
+		m_nHdrMergeMode = mode;
+		m_vcSomeStrInfo.push_back(tem_strLowImg);
+		m_vcSomeStrInfo.push_back(tem_strNorImg);
+		m_vcSomeStrInfo.push_back(tem_strHigImg);
+		m_vcSomeStrInfo.push_back(tem_strHDRImg);
+		m_vcSomeStrInfo.push_back(tem_strThumbPath);
+		m_vcSomeStrInfo.push_back(tem_strIntImg);
+		m_vcSomeStrInfo.push_back(tem_strFilePath);
+		m_vcSomeStrInfo.push_back(imgname);
+	}
+}
+
+#include "MMsystem.h"   //延时函数,精度毫秒
+#pragma comment(lib, "winmm.lib")
+UINT ThreadDelay(LPVOID lpParam)  
+{
+	ThreadInfo* tem_pInfo = (ThreadInfo*)lpParam;
+	HWND tem_hWnd = tem_pInfo->hWnd;
+	int tem_nTime = tem_pInfo->time;
+	int tem_nMode = tem_pInfo->mode;
+
+	DWORD tem_nBegin = timeGetTime();
+	DWORD tem_nEnd = 0;
+	do 
+	{
+		tem_nEnd = timeGetTime();
+	} while (tem_nEnd-tem_nBegin<=tem_nTime);
+
+	::PostMessage(tem_hWnd, WM_THREADOVER, 0, tem_nMode);
+
+	return 0;
+}
+
+
+afx_msg LRESULT CXRayViewerv10Dlg::OnThreadover(WPARAM wParam, LPARAM lParam)
+{
+	int tem_nInfo = (int)lParam;
+	Self_CaptureImgHDRThread(m_strCurImgName, m_nCurImgMode, tem_nInfo);
+	
+	
+	return 0;
+}
 
 void CXRayViewerv10Dlg::Self_HDRMergeImgs(CString higimg, CString norimg, CString lowimg, CString outimg)
 {

@@ -2195,6 +2195,8 @@ void CUDSONE::Self_HideCtrls(int mode)
 	if (mode == 1)
 	{
 		g_BBarColor = FALSE;
+		m_conProgress.SetPos(0);
+		m_staProgress = _T("0%");
 		GetDlgItem(IDC_BTN_HDRCAP)->ShowWindow(SW_HIDE);
 		GetDlgItem(IDC_BTN_LDRCAP)->ShowWindow(SW_HIDE);
 		GetDlgItem(IDC_BTN_SCAN)->ShowWindow(SW_HIDE);

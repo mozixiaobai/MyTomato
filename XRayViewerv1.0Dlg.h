@@ -16,6 +16,7 @@
 #define WM_TEMPLATE    WM_USER+1002
 #define WM_IMGPROCESS  WM_USER+1003
 #define WM_REFRESHIMG  WM_USER+1004
+#define WM_THREADOVER  WM_USER+1005
 
 
 
@@ -61,6 +62,13 @@ typedef struct tagPROPERTY
 }PROPERTY;
 
 
+UINT ThreadDelay(LPVOID lpParam);   //延时线程入口
+struct ThreadInfo
+{
+	HWND     hWnd;     //窗口句柄，用于发送消息
+	int      time;     //延迟时间
+	int      mode;     //标志位
+};
 
 // CXRayViewerv10Dlg 对话框
 class CXRayViewerv10Dlg : public CDialogEx
@@ -491,4 +499,12 @@ public:
 	int m_nTextCstL; //非透明文字，对比度
 protected:
 	afx_msg LRESULT OnSettext(WPARAM wParam, LPARAM lParam);
+public:
+	CWinThread* hThreadHandle;  //保存线程句柄
+	ThreadInfo  stcThreadInfo;
+	CString     m_strCurImgName; //用于线程拍摄
+	int         m_nCurImgMode;
+	void Self_CaptureImgHDRThread(CString imgname, int mode, int ex);
+protected:
+	afx_msg LRESULT OnThreadover(WPARAM wParam, LPARAM lParam);
 };
