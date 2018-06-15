@@ -3155,6 +3155,7 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnImgprocess(WPARAM wParam, LPARAM lParam)
 		m_ptNoteSite.y = 0;
 		break;
 	case 19:
+		
 		if (!m_cvSrcImage.data)
 		{
 //			MessageBox(_T("加载图像失败！"));
@@ -10466,7 +10467,7 @@ void CXRayViewerv10Dlg::OnLButtonUp(UINT nFlags, CPoint point)
 				tem_BOrientation = TRUE;
 
 			}
-			if (m_ptOri.x==m_ptEnd.x && m_ptOri.y!=m_ptEnd.y)
+			else if (m_ptOri.x==m_ptEnd.x && m_ptOri.y!=m_ptEnd.y)
 			{
 				//夹角为90度，垂直方向
 				tem_nAngle = 90;
@@ -11341,7 +11342,8 @@ CString CXRayViewerv10Dlg::Self_Img2DCM(CString imgpath)
 	char*   tem_cSrc = T2A(tem_strInput);
 	char*   tem_cDst = T2A(tem_strOutPut);
 	tem_dcm->SaveIMAGEtoDCM(tem_cSrc, tem_cDst);
-	
+	delete tem_dcm;
+
 	DeleteFile(tem_strInput);
 	
 	return tem_strOutPut;
@@ -11470,8 +11472,6 @@ CString CXRayViewerv10Dlg::Self_InterPolateImage(CString srcImage, CString dstIm
 	tem_cxSrcImage.Destroy();
 	
 	return tem_strDstImage;
-	
-
 }
 
 
@@ -12106,9 +12106,9 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnSettext(WPARAM wParam, LPARAM lParam)
 	m_dlgOne.Self_HideCtrls(8);
 	//等待子程序生成完毕再继续-----------------------------------------------------------
 	//删除缓存图像----------------------------------------------------------------------
-// 	::DeleteFile(tem_strHigImg);
-// 	::DeleteFile(tem_strNorImg);
-// 	::DeleteFile(tem_strLowImg);
+	::DeleteFile(tem_strHigImg);
+	::DeleteFile(tem_strNorImg);
+	::DeleteFile(tem_strLowImg);
 
 	//是否需要添加水印-------------------------------------------------------------------
 	if (m_nWaterMark == 1)
@@ -12151,6 +12151,9 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnSettext(WPARAM wParam, LPARAM lParam)
 		char*   tem_cSrc = T2A(tem_strHDRImg);
 		char*   tem_cDst = T2A(tem_strFilePath);
 		tem_dcm->SaveIMAGEtoDCM(tem_cSrc, tem_cDst);
+
+		delete tem_dcm;
+	
 	}
 	else if (m_nLastImgType == 3)
 	{

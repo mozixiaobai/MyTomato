@@ -169,4 +169,6 @@ public:
 	CString m_staComputerD;
 	afx_msg void OnBnClickedBtnText1();
 	afx_msg void OnBnClickedBtnText2();
+	CPngButton m_btnCapText1;
+	CPngButton m_btnCapText2;
 };

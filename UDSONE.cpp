@@ -58,6 +58,8 @@ void CUDSONE::DoDataExchange(CDataExchange* pDX)
 	//  DDX_Control(pDX, IDC_STA_PROGRESSINFO, m_staProgressInfo);
 	DDX_Text(pDX, IDC_STA_PROGRESSINFO, m_staProgressInfo);
 	DDX_Text(pDX, IDC_STA_ACOMPUTERV, m_staComputerD);
+	DDX_Control(pDX, IDC_BTN_TEXT1, m_btnCapText1);
+	DDX_Control(pDX, IDC_BTN_TEXT2, m_btnCapText2);
 }
 
 
@@ -399,6 +401,8 @@ BOOL CUDSONE::OnInitDialog()
 	m_btnHDR.Init(IDB_PNG_HDR, BTN_IMG_4, BTN_TYPE_NORMAL);
 	m_btnHDRCap.Init(IDB_PNG_HDRCAP, BTN_IMG_4, BTN_TYPE_NORMAL);
 	m_btnLDRCap.Init(IDB_PNG_LDRCAP, BTN_IMG_4, BTN_TYPE_NORMAL);
+	m_btnCapText1.Init(IDB_PNG_CAPTEXT, BTN_IMG_4, BTN_TYPE_NORMAL);
+	m_btnCapText2.Init(IDB_PNG_CAPTEXT, BTN_IMG_4, BTN_TYPE_NORMAL);
 
 	m_tipInfo.Create(this);
 //	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_SCAN), m_vcTab1Lge[19]);
@@ -410,6 +414,8 @@ BOOL CUDSONE::OnInitDialog()
 // 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_SCANHDR), _T("°üÎ§ÆØ¹â"));
 // 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_HDRCAP), _T("¸ßÃÜ¶ÈÅÄÉã"));
 // 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_LDRCAP), _T("µÍÃÜ¶ÈÅÄÉã"));
+	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_TEXT1), _T("ÅÄÉã½ºÆ¬Í¸Ã÷ÎÄ×Ö"));
+	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_TEXT2), _T("ÅÄÉã½ºÆ¬²»Í¸Ã÷ÎÄ×Ö"));
 
 	m_tipInfo.SetDelayTime(TTDT_INITIAL, 100);
 	m_tipInfo.SetDelayTime(TTDT_AUTOPOP, 5000);
@@ -2034,6 +2040,8 @@ void CUDSONE::OnClickedChkAtrantem()
 		m_btnLDRCap.SetFourState();
 		GetDlgItem(IDC_BTN_HDRCAP)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BTN_LDRCAP)->EnableWindow(TRUE);
+		m_btnCapText1.SetFourState();
+		m_btnCapText2.SetFourState();
 		GetDlgItem(IDC_BTN_TEXT1)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BTN_TEXT2)->EnableWindow(TRUE);
 
@@ -2124,6 +2132,8 @@ void CUDSONE::OnClickedChkAreflcttem()
 		m_btnLDRCap.SetFourState();
 		GetDlgItem(IDC_BTN_HDRCAP)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BTN_LDRCAP)->EnableWindow(TRUE);
+		m_btnCapText1.SetFourState();
+		m_btnCapText2.SetFourState();
 		GetDlgItem(IDC_BTN_TEXT1)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BTN_TEXT2)->EnableWindow(TRUE);
 

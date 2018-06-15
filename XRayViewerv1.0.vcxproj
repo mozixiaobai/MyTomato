@@ -107,6 +107,7 @@
     <None Include="res\backup2.png" />
     <None Include="res\BK.png" />
     <None Include="res\cancel.png" />
+    <None Include="res\captext.png" />
     <None Include="res\crop.png" />
     <None Include="res\diyrotate.png" />
     <None Include="res\doc.png" />

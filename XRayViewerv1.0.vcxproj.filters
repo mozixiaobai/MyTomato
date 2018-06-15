@@ -142,6 +142,9 @@
     <None Include="res\ldrcap.png">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="res\captext.png">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="XRayViewerv1.0.h">
