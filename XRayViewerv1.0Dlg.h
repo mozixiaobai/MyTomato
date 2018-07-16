@@ -507,4 +507,8 @@ public:
 	void Self_CaptureImgHDRThread(CString imgname, int mode, int ex);
 protected:
 	afx_msg LRESULT OnThreadover(WPARAM wParam, LPARAM lParam);
+public:
+	int Self_GetIntervalTime2(void);
+	double Self_GetAvgGray2(CString imgpath, cv::Rect *slcRect);
+	double Self_GetAvgGray3(CString imgpath, cv::Rect slcRect);
 };

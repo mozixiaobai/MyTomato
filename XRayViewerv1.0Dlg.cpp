@@ -647,7 +647,7 @@ BOOL CXRayViewerv10Dlg::OnInitDialog()
 //  	Self_TimeDelay(5*100);  //500ms延时，否则摄像头未准备好，崩溃
 	if (m_nIniTime == 0)
 	{
-		m_nIntervalTime = Self_GetIntervalTime();
+		m_nIntervalTime = Self_GetIntervalTime2();
 	} 
 	else
 	{
@@ -12147,6 +12147,7 @@ void CXRayViewerv10Dlg::putTextEx(Mat& dst, const char* str, cv::Point org, Scal
 }
 
 
+//一、原求间隔时间，求全图高达平局亮度--------------------------------------
 int CXRayViewerv10Dlg::Self_GetIntervalTime(void)
 {
 	std::vector<CString> tem_vcBuffers;
@@ -12272,6 +12273,194 @@ double CXRayViewerv10Dlg::Self_GetAvgGray(CString imgpath)
 //	tem_dAvgGray = (double)tem_dSumGray/(tem_cvImg.rows*tem_cvImg.cols);
 	tem_dAvgGray = (double)tem_dSumGray/((tem_cvImg.rows*tem_cvImg.cols)/6);
 	tem_cvImg.release();
+
+	return tem_dAvgGray;
+}
+
+
+//二、新求间隔时间，求部分区域区间范围内最大亮度----------------------------
+int CXRayViewerv10Dlg::Self_GetIntervalTime2(void)
+{
+	CString str=_T(""), str1=_T(""), str2=_T("");
+	std::vector<CString> tem_vcBuffers;
+	//预览模式
+	m_conVideoCtrl.ManualImageCrop(FALSE);
+	m_conVideoCtrl.AdjuestImageCrop(FALSE);
+
+	int tem_nCapCount = 0;
+	cv::Rect tem_rcSlcRect;
+
+
+	/*b、调节灯箱亮度*/
+	AdjustRelay(50, 10);
+	DWORD tem_DBegin = GetTickCount();
+	double tem_dLastGray = 0.0, tem_dNextGray = 5.0, tem_dMidGray=0.0;
+	/*c、拍摄第一幅图像*/
+	CString tem_strLast = m_strThumbDoc;
+	tem_strLast += _T("\\CountTime_1.jpg");
+
+	m_conVideoCtrl.CaptureImage(tem_strLast);
+	tem_vcBuffers.push_back(tem_strLast);
+	if(PathFileExists(tem_strLast))
+	{
+		tem_nCapCount++;
+		tem_dLastGray = Self_GetAvgGray2(tem_strLast, &tem_rcSlcRect);
+		str1.Format(_T("%.1lf   "), tem_dLastGray);
+//		MessageBox(str1);
+	}
+
+	double tem_dThreshold = 1;
+	if (tem_dLastGray<=60)
+	{
+		tem_dThreshold = 0.4;
+	}
+
+
+	while(abs(tem_dNextGray-tem_dLastGray)>tem_dThreshold)
+	{
+		CString tem_strNext = m_strThumbDoc;
+		CString str;
+		str.Format(_T("%d"), tem_nCapCount);
+		tem_strNext += _T("\\CountTime_2_");
+		tem_strNext += str;
+		tem_strNext += _T(".jpg");
+		/*d、拍摄下一幅图像*/
+		m_conVideoCtrl.CaptureImage(tem_strNext);
+		tem_vcBuffers.push_back(tem_strNext);
+		if(PathFileExists(tem_strNext))
+		{
+			tem_nCapCount++;
+			tem_dNextGray = Self_GetAvgGray3(tem_strNext, tem_rcSlcRect);
+			str2.Format(_T("%.1lf   "), tem_dNextGray);
+//			MessageBox(str2);
+		}
+
+
+		if (abs(tem_dNextGray-tem_dLastGray)<tem_dThreshold)
+		{
+			break;
+		} 
+		else
+		{
+			tem_dLastGray = tem_dNextGray;
+			tem_dNextGray = 0;
+		}
+	}
+	DWORD tem_DEnd = GetTickCount();
+	// 	CString str;
+	// 	str.Format(_T("%d"), (tem_DEnd-tem_DBegin));
+	// 	MessageBox(str);
+	/*e、求平均时长*/
+	int tem_nAvgTime = 2000;
+	if (tem_nCapCount!=0)
+	{
+		tem_nAvgTime = (int)(tem_DEnd-tem_DBegin)/tem_nCapCount;
+	}
+
+	/*f、删除缓存图像，恢复灯箱亮度*/
+	std::vector<CString>::iterator tem_it;
+	for (tem_it = tem_vcBuffers.begin(); tem_it != tem_vcBuffers.end(); tem_it++)
+	{
+//		::DeleteFile(*tem_it);
+	}
+
+	AdjustRelay(10, 50);
+
+	if (m_BDOC)
+	{
+		//恢复为自动裁切
+		m_conVideoCtrl.ManualImageCrop(FALSE);
+		m_conVideoCtrl.AdjuestImageCrop(TRUE);
+	} 
+	else
+	{
+		//恢复为固定区域
+		m_conVideoCtrl.ManualImageCrop(TRUE);
+		m_conVideoCtrl.SetMessage(1);
+		m_conVideoCtrl.SetRectValue(m_lLeftSite, m_lTopSite, m_lRightSite, m_lBottomSite);
+		m_conVideoCtrl.SetMessage(0);
+	}
+
+	
+	return tem_nAvgTime;
+}
+
+
+double CXRayViewerv10Dlg::Self_GetAvgGray2(CString imgpath, cv::Rect *slcRect)
+{
+	/*1、加载图像*/
+	CStringA tem_straImgPath(imgpath);
+	string tem_sImgPath = tem_straImgPath.GetBuffer(0);
+	tem_straImgPath.ReleaseBuffer();
+	Mat tem_cvImg = imread(tem_sImgPath, IMREAD_GRAYSCALE);
+
+	/*2、像素遍历，获取平均灰度*/
+	double tem_dAvgGray = 0.0;
+	double tem_dSumGray = 0.0;
+	double tem_dMaxSum  = 0.0;
+
+	for(int level=0; level<tem_cvImg.cols/200; level++)
+	{
+		for (int vertical=0; vertical<tem_cvImg.rows/200; vertical++)
+		{
+			//设置ROI滑块
+			tem_dSumGray = 0.0;
+			Mat roiImage;
+			cv::Rect roiRect(level*200, vertical*200, 200, 200);
+			tem_cvImg(roiRect).copyTo(roiImage);
+			//求滑块的平均亮度
+			for(int i=0; i<roiImage.rows; i++)
+			{
+				uchar *tem_pRow = roiImage.ptr<uchar>(i);
+				for (int j=0; j<roiImage.cols;j++)
+				{
+					tem_dSumGray += tem_pRow[j];
+				}
+			}
+			//比较该滑块的亮度总和----------------------------------
+			//找出(0,140]范围内最大滑块;linght=1,sum>150,会产生溢出.
+			if (tem_dSumGray>tem_dMaxSum && tem_dSumGray<130*200*200)
+			{
+				tem_dMaxSum = tem_dSumGray;
+				slcRect->x = roiRect.x;
+				slcRect->y = roiRect.y;
+				slcRect->width = roiRect.width;
+				slcRect->height = roiRect.height;
+			}
+		}
+	}
+	tem_dAvgGray = (double)tem_dMaxSum/(200*200);
+
+
+	return tem_dAvgGray;
+}
+
+
+double CXRayViewerv10Dlg::Self_GetAvgGray3(CString imgpath, cv::Rect slcRect)
+{
+	/*1、加载图像*/
+	CStringA tem_straImgPath(imgpath);
+	string tem_sImgPath = tem_straImgPath.GetBuffer(0);
+	tem_straImgPath.ReleaseBuffer();
+	Mat tem_cvImg = imread(tem_sImgPath, IMREAD_GRAYSCALE);
+
+	/*2、像素遍历，获取平均灰度*/
+	double tem_dAvgGray = 0.0;
+	double tem_dSumGray = 0.0;
+	double tem_dMaxSum  = 0.0;	
+	
+	Mat roiImage;
+	tem_cvImg(slcRect).copyTo(roiImage);
+	//求滑块的平均亮度
+	for(int i=0; i<roiImage.rows; i++)
+	{
+		uchar *tem_pRow = roiImage.ptr<uchar>(i);
+		for (int j=0; j<roiImage.cols;j++)
+		{
+			tem_dSumGray += tem_pRow[j];
+		}
+	}
+	tem_dAvgGray = (double)tem_dSumGray/(200*200);
 
 	return tem_dAvgGray;
 }
@@ -12410,3 +12599,4 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnSettext(WPARAM wParam, LPARAM lParam)
 //	MessageBox(_T("Over"));
 	return 0;
 }
+
