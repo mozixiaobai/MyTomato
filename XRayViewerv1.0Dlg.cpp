@@ -647,14 +647,43 @@ BOOL CXRayViewerv10Dlg::OnInitDialog()
 //  	Self_TimeDelay(5*100);  //500ms延时，否则摄像头未准备好，崩溃
 	if (m_nIniTime == 0)
 	{
-		m_nIntervalTime = Self_GetIntervalTime2();
+ 		CString tem_strName, tem_strType;
+		DWORD tem_dwNum, tem_dwSpeed;
+		GetCpuInfo(tem_strName, tem_strType, tem_dwNum, tem_dwSpeed);
+		int tem_nRam = GetMemoryInfoEx();
+		tem_strName.MakeLower();
+	
+		if((tem_strName.Find(_T("i3"))!=-1) && tem_nRam>3500)
+		{
+			//正常延迟
+			m_nIntervalTime = Self_GetIntervalTime2();
+		}	
+		else if((tem_strName.Find(_T("i5"))!=-1) && tem_nRam>3500)
+		{
+			//正常延迟
+			m_nIntervalTime = Self_GetIntervalTime2();
+		}
+		else if((tem_strName.Find(_T("i7"))!=-1) && tem_nRam>3500)
+		{
+			//正常延迟
+			m_nIntervalTime = Self_GetIntervalTime2();
+		}
+		else if((tem_strName.Find(_T("i9"))!=-1) && tem_nRam>3500)
+		{
+			//正常延迟
+			m_nIntervalTime = Self_GetIntervalTime2();
+		}
+		else
+		{
+			//认为配置较低，增加1秒延迟
+			m_nIntervalTime = Self_GetIntervalTime2();
+			m_nIntervalTime += 1000;
+		}
 	} 
 	else
 	{
-//		m_nIntervalTime = (21-m_nIniTime)*1000;
 		m_nIntervalTime = m_nIniTime*1000;
-	}
- 	
+	} 	
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -12281,6 +12310,12 @@ double CXRayViewerv10Dlg::Self_GetAvgGray(CString imgpath)
 //二、新求间隔时间，求部分区域区间范围内最大亮度----------------------------
 int CXRayViewerv10Dlg::Self_GetIntervalTime2(void)
 {
+	//0、灯箱四边偏移量------------------------------
+	int tem_nOffLeft = 270;
+	int tem_nOffRight= 350;
+	int tem_nOffTop = 100;
+	int tem_nOffBottom = 100;
+
 	CString str=_T(""), str1=_T(""), str2=_T("");
 	std::vector<CString> tem_vcBuffers;
 	//预览模式
@@ -12293,30 +12328,72 @@ int CXRayViewerv10Dlg::Self_GetIntervalTime2(void)
 
 	/*b、调节灯箱亮度*/
 	AdjustRelay(50, 10);
-	DWORD tem_DBegin = GetTickCount();
-	double tem_dLastGray = 0.0, tem_dNextGray = 5.0, tem_dMidGray=0.0;
+	DWORD tem_DBegin = GetTickCount(); //总时间
+	DWORD tem_DCapBegin, tem_DCapEnd;
+	std::vector<DWORD> tem_vcCapTime;
+
+	double tem_dFirstGray = 0.0, tem_dLastGray = 0.0, tem_dNextGray = 0.0, tem_dMidGray=0.0;
+
 	/*c、拍摄第一幅图像*/
 	CString tem_strLast = m_strThumbDoc;
 	tem_strLast += _T("\\CountTime_1.jpg");
-
+	tem_DCapBegin = GetTickCount();
 	m_conVideoCtrl.CaptureImage(tem_strLast);
+	tem_DCapEnd = GetTickCount();
+	tem_vcCapTime.push_back(tem_DCapEnd-tem_DCapBegin);
+
 	tem_vcBuffers.push_back(tem_strLast);
+
+	//1、找出首幅图像范围最大区域坐标------------------------------------------------------------
 	if(PathFileExists(tem_strLast))
 	{
 		tem_nCapCount++;
-		tem_dLastGray = Self_GetAvgGray2(tem_strLast, &tem_rcSlcRect);
-		str1.Format(_T("%.1lf   "), tem_dLastGray);
-//		MessageBox(str1);
+//		tem_dLastGray = Self_GetAvgGray2(tem_strLast, &tem_rcSlcRect);
+		CStringA tem_straImgPath(tem_strLast);
+		string tem_sImgPath = tem_straImgPath.GetBuffer(0);
+		tem_straImgPath.ReleaseBuffer();
+		Mat tem_cvImg = imread(tem_sImgPath, IMREAD_GRAYSCALE);
+		for(int level=0; level<((tem_cvImg.cols-tem_nOffLeft-tem_nOffRight)/200); level++)
+		{
+			for (int vertical=0; vertical<((tem_cvImg.rows-tem_nOffTop-tem_nOffBottom)/200); vertical++)
+			{
+				//设置ROI滑块------------------------------------------------------
+				double tem_dSumGray = 0.0;
+				Mat roiImage;
+				cv::Rect roiRect(tem_nOffLeft+level*200, tem_nOffTop+vertical*200, 200, 200);
+				tem_cvImg(roiRect).copyTo(roiImage);
+				//求滑块平均亮度
+				for (int i=0; i<roiImage.rows; i++)
+				{
+					uchar* tem_pRow = roiImage.ptr<uchar>(i);
+					for (int j=0; j<roiImage.cols; j++)
+					{
+						tem_dSumGray += tem_pRow[j];
+					}
+				}
+				//比较该滑块的亮度总和----------------------------------
+				//找出(0,140]范围内最大滑块;linght=1,sum>150,会产生溢出.
+				if (tem_dSumGray>tem_dMidGray && tem_dSumGray<130*200*200)
+				{
+					tem_dMidGray = tem_dSumGray;
+					tem_rcSlcRect = roiRect;
+				}
+			}
+		}
+		//首幅图的Rect区域——tem_rcRect,首幅图的平均亮度值tem_dFirstGray
+		tem_dFirstGray = (double)tem_dMidGray/(200*200); //对比收尾变化幅度
+		tem_dLastGray = tem_dFirstGray; //对比连续变化幅度
+
+		//标记Rect区域位置，用于测试
+// 		cv::rectangle(tem_cvImg, tem_rcSlcRect, cv::Scalar(255, 0, 255), 2, 1, 0);
+// 		imwrite("C:\\Users\\Administrator\\Desktop\\测速\\rectangle.jpg", tem_cvImg);
 	}
-
-	double tem_dThreshold = 1;
-	if (tem_dLastGray<=60)
-	{
-		tem_dThreshold = 0.4;
-	}
-
-
-	while(abs(tem_dNextGray-tem_dLastGray)>tem_dThreshold)
+	
+	
+	//2、拍摄下一幅图像，并对比该块区域亮度变化---------------------------------------
+	double tem_dThreshold = 2;
+	
+	while(abs(tem_dNextGray-tem_dLastGray)>tem_dThreshold || abs(tem_dNextGray-tem_dFirstGray)<15)
 	{
 		CString tem_strNext = m_strThumbDoc;
 		CString str;
@@ -12325,18 +12402,19 @@ int CXRayViewerv10Dlg::Self_GetIntervalTime2(void)
 		tem_strNext += str;
 		tem_strNext += _T(".jpg");
 		/*d、拍摄下一幅图像*/
+		tem_DCapBegin = GetTickCount();
 		m_conVideoCtrl.CaptureImage(tem_strNext);
+		tem_DCapEnd = GetTickCount();
+		tem_vcCapTime.push_back(tem_DCapEnd-tem_DCapBegin);
 		tem_vcBuffers.push_back(tem_strNext);
 		if(PathFileExists(tem_strNext))
 		{
 			tem_nCapCount++;
 			tem_dNextGray = Self_GetAvgGray3(tem_strNext, tem_rcSlcRect);
-			str2.Format(_T("%.1lf   "), tem_dNextGray);
-//			MessageBox(str2);
 		}
 
 
-		if (abs(tem_dNextGray-tem_dLastGray)<tem_dThreshold)
+		if (abs(tem_dNextGray-tem_dLastGray)<tem_dThreshold && abs(tem_dNextGray-tem_dFirstGray)>15)
 		{
 			break;
 		} 
@@ -12347,21 +12425,34 @@ int CXRayViewerv10Dlg::Self_GetIntervalTime2(void)
 		}
 	}
 	DWORD tem_DEnd = GetTickCount();
-	// 	CString str;
-	// 	str.Format(_T("%d"), (tem_DEnd-tem_DBegin));
-	// 	MessageBox(str);
 	/*e、求平均时长*/
+	int tem_nAvgTime = (int)(tem_DEnd-tem_DBegin);
+	/*
+	std::vector<DWORD>::iterator item;
+	for (item=tem_vcCapTime.begin();item!=tem_vcCapTime.end();item++)
+	{
+		tem_nAvgTime -= (int)*item;
+	}
+	*/
+	for (int i=0; i<tem_vcCapTime.size()-1;i++)
+	{
+		tem_nAvgTime -= (int)tem_vcCapTime.at(i);
+	}
+	
+	
+	/*
 	int tem_nAvgTime = 2000;
 	if (tem_nCapCount!=0)
 	{
 		tem_nAvgTime = (int)(tem_DEnd-tem_DBegin)/tem_nCapCount;
 	}
-
+	*/
 	/*f、删除缓存图像，恢复灯箱亮度*/
+	
 	std::vector<CString>::iterator tem_it;
 	for (tem_it = tem_vcBuffers.begin(); tem_it != tem_vcBuffers.end(); tem_it++)
 	{
-//		::DeleteFile(*tem_it);
+		::DeleteFile(*tem_it);
 	}
 
 	AdjustRelay(10, 50);
@@ -12381,7 +12472,6 @@ int CXRayViewerv10Dlg::Self_GetIntervalTime2(void)
 		m_conVideoCtrl.SetMessage(0);
 	}
 
-	
 	return tem_nAvgTime;
 }
 
@@ -12600,3 +12690,85 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnSettext(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+
+//获取电脑内存，返回内存单位为M
+int CXRayViewerv10Dlg::GetMemoryInfoEx(void)
+{
+	MEMORYSTATUSEX status;
+	status.dwLength = sizeof(status);
+
+	GlobalMemoryStatusEx(&status);
+
+	ULONGLONG ullPhySize = status.ullTotalPhys/(1024);
+	int nPhySize = ullPhySize/1024;
+
+	return nPhySize;
+}
+
+//获取电脑CPU信息
+void CXRayViewerv10Dlg::GetCpuInfo(CString& chProcessorName, CString& chProcessorType, DWORD& dwNum, DWORD& dwMaxClockSpeed)
+{
+	CString strPath=_T("HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0");//注册表子键路径  
+	CRegKey regkey;//定义注册表类对象  
+	LONG lResult;//LONG型变量－反应结果  
+	lResult=regkey.Open(HKEY_LOCAL_MACHINE,LPCTSTR(strPath),KEY_ALL_ACCESS); //打开注册表键  
+	if (lResult!=ERROR_SUCCESS)  
+	{  
+		return;  
+	}  
+	WCHAR chCPUName[50] = {0};  
+	DWORD dwSize=50;   
+
+	//获取ProcessorNameString字段值  
+	if (ERROR_SUCCESS == regkey.QueryStringValue(_T("ProcessorNameString"),chCPUName,&dwSize))  
+	{  
+		chProcessorName = chCPUName;  
+	}  
+
+	//查询CPU主频  
+	DWORD dwValue;  
+	if (ERROR_SUCCESS == regkey.QueryDWORDValue(_T("~MHz"),dwValue))  
+	{  
+		dwMaxClockSpeed = dwValue;  
+	}  
+	regkey.Close();//关闭注册表  
+	//UpdateData(FALSE);  
+
+	//获取CPU核心数目  
+	SYSTEM_INFO si;  
+	memset(&si,0,sizeof(SYSTEM_INFO));  
+	GetSystemInfo(&si);  
+	dwNum = si.dwNumberOfProcessors;  
+
+	switch (si.dwProcessorType)  
+	{  
+	case PROCESSOR_INTEL_386:  
+		{  
+			chProcessorType.Format(_T("Intel 386 processor"));  
+		}  
+		break;  
+	case PROCESSOR_INTEL_486:  
+		{  
+			chProcessorType.Format(_T("Intel 486 Processor"));  
+		}  
+		break;  
+	case PROCESSOR_INTEL_PENTIUM:  
+		{  
+			chProcessorType.Format(_T("Intel Pentium Processor"));  
+		}  
+		break;  
+	case PROCESSOR_INTEL_IA64:  
+		{  
+			chProcessorType.Format(_T("Intel IA64 Processor"));  
+		}  
+		break;  
+	case PROCESSOR_AMD_X8664:  
+		{  
+			chProcessorType.Format(_T("AMD X8664 Processor"));  
+		}  
+		break;  
+	default:  
+		chProcessorType.Format(_T("未知"));  
+		break;  
+	}  
+}

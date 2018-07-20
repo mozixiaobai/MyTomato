@@ -44,6 +44,7 @@
 #include "UDSSelectFormat.h"
 #include <iostream>
 #include "Shellapi.h"
+#include <afxtempl.h> //ªÒ»°µÁƒ‘≈‰÷√
 
 
 
@@ -511,4 +512,6 @@ public:
 	int Self_GetIntervalTime2(void);
 	double Self_GetAvgGray2(CString imgpath, cv::Rect *slcRect);
 	double Self_GetAvgGray3(CString imgpath, cv::Rect slcRect);
+	int GetMemoryInfoEx(void);
+	void GetCpuInfo(CString& chProcessorName, CString& chProcessorType, DWORD& dwNum, DWORD& dwMaxClockSpeed);
 };
