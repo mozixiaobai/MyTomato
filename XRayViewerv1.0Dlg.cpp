@@ -250,7 +250,7 @@ BOOL CXRayViewerv10Dlg::OnInitDialog()
 	m_nLowBackLgt  = 0;
 	m_nHigBackLgt  = 1;
 
-	m_nIntervalTime = 1000;
+	m_nIntervalTime = 2000;
 	
 
 	m_BShowTab    = TRUE;
@@ -2032,12 +2032,44 @@ afx_msg LRESULT CXRayViewerv10Dlg::OnScanset(WPARAM wParam, LPARAM lParam)
 		if (tem_nInfo == 0)
 		{
 			//自动设置获取平均时间
-			m_nIntervalTime = Self_GetIntervalTime();
+//			m_nIntervalTime = Self_GetIntervalTime();
+			CString tem_strName, tem_strType;
+			DWORD tem_dwNum, tem_dwSpeed;
+			int tem_nRam;
+			GetCpuInfo(tem_strName, tem_strType, tem_dwNum, tem_dwSpeed);
+			tem_nRam = GetMemoryInfoEx();
+			tem_strName.MakeLower();
+
+			if((tem_strName.Find(_T("i3"))!=-1) && tem_nRam>3500)
+			{
+				//正常延迟
+				m_nIntervalTime = Self_GetIntervalTime2();
+			}	
+			else if((tem_strName.Find(_T("i5"))!=-1) && tem_nRam>3500)
+			{
+				//正常延迟
+				m_nIntervalTime = Self_GetIntervalTime2();
+			}
+			else if((tem_strName.Find(_T("i7"))!=-1) && tem_nRam>3500)
+			{
+				//正常延迟
+				m_nIntervalTime = Self_GetIntervalTime2();
+			}
+			else if((tem_strName.Find(_T("i9"))!=-1) && tem_nRam>3500)
+			{
+				//正常延迟
+				m_nIntervalTime = Self_GetIntervalTime2();
+			}
+			else
+			{
+				//认为配置较低，增加1秒延迟
+				m_nIntervalTime = Self_GetIntervalTime2();
+				m_nIntervalTime += 1000;
+			}				
 		}
 		else
 		{
 			//默认时间设置为2秒
-//			m_nIntervalTime = (21-tem_nInfo)*1000;
 			m_nIntervalTime = tem_nInfo*1000;
 			m_nIniTime = tem_nInfo;
 		}
@@ -12384,6 +12416,32 @@ int CXRayViewerv10Dlg::Self_GetIntervalTime2(void)
 		tem_dFirstGray = (double)tem_dMidGray/(200*200); //对比收尾变化幅度
 		tem_dLastGray = tem_dFirstGray; //对比连续变化幅度
 
+		if (tem_rcSlcRect.width==0 ||tem_rcSlcRect.height==0)
+		{
+			std::vector<CString>::iterator tem_it;
+			for (tem_it = tem_vcBuffers.begin(); tem_it != tem_vcBuffers.end(); tem_it++)
+			{
+				::DeleteFile(*tem_it);
+			}
+
+			AdjustRelay(10, 50);
+
+			if (m_BDOC)
+			{
+				//恢复为自动裁切
+				m_conVideoCtrl.ManualImageCrop(FALSE);
+				m_conVideoCtrl.AdjuestImageCrop(TRUE);
+			} 
+			else
+			{
+				//恢复为固定区域
+				m_conVideoCtrl.ManualImageCrop(TRUE);
+				m_conVideoCtrl.SetMessage(1);
+				m_conVideoCtrl.SetRectValue(m_lLeftSite, m_lTopSite, m_lRightSite, m_lBottomSite);
+				m_conVideoCtrl.SetMessage(0);
+			}
+			return 2000;
+		}
 		//标记Rect区域位置，用于测试
 // 		cv::rectangle(tem_cvImg, tem_rcSlcRect, cv::Scalar(255, 0, 255), 2, 1, 0);
 // 		imwrite("C:\\Users\\Administrator\\Desktop\\测速\\rectangle.jpg", tem_cvImg);
@@ -12393,7 +12451,7 @@ int CXRayViewerv10Dlg::Self_GetIntervalTime2(void)
 	//2、拍摄下一幅图像，并对比该块区域亮度变化---------------------------------------
 	double tem_dThreshold = 2;
 	
-	while(abs(tem_dNextGray-tem_dLastGray)>tem_dThreshold || abs(tem_dNextGray-tem_dFirstGray)<15)
+	while(abs(tem_dNextGray-tem_dLastGray)>tem_dThreshold || abs(tem_dNextGray-tem_dFirstGray)<10)
 	{
 		CString tem_strNext = m_strThumbDoc;
 		CString str;
@@ -12414,7 +12472,7 @@ int CXRayViewerv10Dlg::Self_GetIntervalTime2(void)
 		}
 
 
-		if (abs(tem_dNextGray-tem_dLastGray)<tem_dThreshold && abs(tem_dNextGray-tem_dFirstGray)>15)
+		if (abs(tem_dNextGray-tem_dLastGray)<tem_dThreshold && abs(tem_dNextGray-tem_dFirstGray)>10)
 		{
 			break;
 		} 
